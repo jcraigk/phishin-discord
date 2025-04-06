@@ -6,7 +6,7 @@ import handlePlay from "./play.js";
 import handleShow from "./show.js";
 import handleStop from "./stop.js";
 
-export const commandHandlers = {
+const commandHandlers = {
   help: handleHelp,
   pause: handlePause,
   play: handlePlay,
@@ -60,5 +60,10 @@ export async function execute(interaction, client) {
 
   if (commandHandlers[subcommand]) {
     await commandHandlers[subcommand](interaction, client);
+  } else {
+    await interaction.reply({
+      content: "Sorry, I don't understand",
+      ephemeral: true
+    });
   }
 }

@@ -4,7 +4,7 @@ dotenv.config();
 import { Client, GatewayIntentBits, Collection } from "discord.js";
 import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v10";
-import { commandHandlers, data } from "./commands/index.js";
+import { data, execute } from "./commands/index.js";
 
 const client = new Client({
   intents: [
@@ -14,9 +14,7 @@ const client = new Client({
 });
 
 client.commands = new Collection();
-for (const [name, command] of Object.entries(commandHandlers)) {
-  client.commands.set(name, command);
-}
+client.commands.set("phishin", { execute });
 
 client.once("ready", async () => {
   console.log(`Bot is online as ${client.user.tag}`);
@@ -24,12 +22,12 @@ client.once("ready", async () => {
   const commands = [data.toJSON()];
   const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);
 
-  // await client.application.commands.set([]);
+  // await client.application.commands.set([]); // Delet existing global commands
 
   try {
     console.log("Begin updating application slash commands");
 
-    // TODO: Switch back to global
+    // TODO: Switch back to global commands
     await rest.put(
       Routes.applicationGuildCommands(client.user.id, process.env.GUILD_ID),
       { body: commands }
