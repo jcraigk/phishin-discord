@@ -21,9 +21,10 @@ See [Phish.in](https://github.com/jcraigk/phishin) for more information about th
 ### Setting Up the Code
 
 1. Clone this repository
-2. Run `npm install`
+2. Run `make install`
 3. Create a `.env` file in the root directory
-4. Add your bot token to the `.env` file:
+4. Add your bot token to the `.env` file
+5. Run `make dev`
 
 
 ### Inviting Your Bot to Servers
@@ -46,18 +47,24 @@ See [Phish.in](https://github.com/jcraigk/phishin) for more information about th
 
 ### Running the Bot
 
-1. Run the bot with `node index.js`
+1. Run the bot with `make start` or `make dev`
 2. The bot should now be online and ready to use
 
 ## Commands
 
-* `/phishin` - Shows help information
-* `/phishin play` - Plays a random Phish show in your voice channel
-* `/phishin play [date]` - Plays a specific show (format: YYYY-MM-DD)
+TODO
 
-## Troubleshooting
 
-- Make sure all dependencies are installed
-- Check that your bot token is correctly set in the `.env` file
-- Ensure the bot has the correct permissions on your server
-- If slash commands aren't working, try reinviting the bot with the applications.commands scope
+# Production Deployment
+
+To keep the bot running continuously on your server, we recommend using PM2:
+
+1. Install PM2 globally: `npm install -g pm2`
+2. Start the bot with PM2: `pm2 start index.js --name "phishin-discord"`
+3. Configure PM2 to start on system boot:
+```
+pm2 startup
+pm2 save
+```
+4. To view logs: `pm2 logs phishin-discord`
+

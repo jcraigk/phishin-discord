@@ -1,6 +1,10 @@
-require("dotenv").config();
-const { Client, GatewayIntentBits, Collection } = require("discord.js");
-const fs = require("fs");
+import dotenv from "dotenv";
+dotenv.config();
+
+import { Client, GatewayIntentBits, Collection } from "discord.js";
+import { REST } from "@discordjs/rest";
+import { Routes } from "discord-api-types/v10";
+import { commandHandlers, data } from "./commands/index.js";
 
 const client = new Client({
   intents: [
@@ -10,47 +14,33 @@ const client = new Client({
 });
 
 client.commands = new Collection();
-
-// Command registration
-const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
-for (const file of commandFiles) {
-  const command = require(`./commands/${file}`);
-  client.commands.set(command.data.name, command);
+for (const [name, command] of Object.entries(commandHandlers)) {
+  client.commands.set(name, command);
 }
 
-// Ready event
-client.once("ready", () => {
+client.once("ready", async () => {
   console.log(`Bot is online as ${client.user.tag}`);
 
-  // Register commands with Discord API
-  const { REST } = require("@discordjs/rest");
-  const { Routes } = require("discord-api-types/v10");
-
-  const commands = [];
-  commandFiles.forEach(file => {
-    const command = require(`./commands/${file}`);
-    commands.push(command.data.toJSON());
-  });
-
+  const commands = [data.toJSON()];
   const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);
 
-  (async () => {
-    try {
-      console.log("Started refreshing application (/) commands.");
+  // await client.application.commands.set([]);
 
-      await rest.put(
-        Routes.applicationCommands(client.user.id),
-        { body: commands }
-      );
+  try {
+    console.log("Begin updating application slash commands");
 
-      console.log("Successfully reloaded application (/) commands.");
-    } catch (error) {
-      console.error(error);
-    }
-  })();
+    // TODO: Switch back to global
+    await rest.put(
+      Routes.applicationGuildCommands(client.user.id, process.env.GUILD_ID),
+      { body: commands }
+    );
+
+    console.log("Done updating application slash commands");
+  } catch (error) {
+    console.error(error);
+  }
 });
 
-// Command handling
 client.on("interactionCreate", async interaction => {
   if (!interaction.isCommand()) return;
 
