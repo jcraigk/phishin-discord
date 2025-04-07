@@ -2,9 +2,9 @@ import { MessageFlags } from "discord.js";
 import { createAudioResource } from "@discordjs/voice";
 
 export default async function handleNextTrack(interaction, client) {
-  const currentShow = client.shows?.get(interaction.guild.id);
+  const playlist = client.playlists?.get(interaction.guild.id);
 
-  if (!currentShow || !currentShow.player || currentShow.currentIndex >= currentShow.playlist.length) {
+  if (!playlist || !playlist.player || playlist.currentIndex >= playlist.playlist.length) {
     await interaction.reply({
       content: "❌ There's nothing currently playing or no more tracks to skip",
       flags: MessageFlags.Ephemeral
@@ -13,19 +13,19 @@ export default async function handleNextTrack(interaction, client) {
   }
 
   try {
-    currentShow.currentIndex++;
+    playlist.currentIndex++;
 
-    if (currentShow.currentIndex < currentShow.playlist.length) {
-      const track = currentShow.playlist[currentShow.currentIndex];
+    if (playlist.currentIndex < playlist.playlist.length) {
+      const track = playlist.playlist[playlist.currentIndex];
       const trackUrl = track.mp3_url;
       const trackLink = `https://phish.in/${track.show_date}/${track.slug}`;
 
       if (trackUrl) {
         const resource = createAudioResource(trackUrl);
-        currentShow.player.play(resource);
+        playlist.player.play(resource);
 
         await interaction.reply({
-          content: `⏩ Next track: ${track.title} - ${currentShow.formattedDate} - \`${trackLink}\``,
+          content: `⏩ Next track: ${track.title} - ${playlist.formattedDate} - \`${trackLink}\``,
           flags: MessageFlags.Ephemeral
         });
       } else {

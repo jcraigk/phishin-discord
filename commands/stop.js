@@ -1,9 +1,9 @@
 import { MessageFlags } from "discord.js";
 
 export default async function handleStop(interaction, client) {
-  const currentShow = client.shows?.get(interaction.guild.id);
+  const playlist = client.playlists?.get(interaction.guild.id);
 
-  if (!currentShow || !currentShow.player) {
+  if (!playlist || !playlist.player) {
     await interaction.reply({
       content: "⏹️ Player already stopped",
       flags: MessageFlags.Ephemeral
@@ -13,13 +13,13 @@ export default async function handleStop(interaction, client) {
 
   try {
     // Stop the audio player
-    currentShow.player.stop();
+    playlist.player.stop();
 
     // Destroy the connection
-    currentShow.connection.destroy();
+    playlist.connection.destroy();
 
     // Clear the playlist and any stored data
-    client.shows.delete(interaction.guild.id);
+    client.playlists.delete(interaction.guild.id);
 
     await interaction.reply("⏹️ Playback stopped and playlist cleared");
   } catch (error) {

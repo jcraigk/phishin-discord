@@ -2,9 +2,9 @@ import { MessageFlags } from "discord.js";
 import { createAudioResource } from "@discordjs/voice";
 
 export default async function handlePreviousTrack(interaction, client) {
-  const currentShow = client.shows?.get(interaction.guild.id);
+  const playlist = client.playlists?.get(interaction.guild.id);
 
-  if (!currentShow || !currentShow.player || currentShow.currentIndex <= 0) {
+  if (!playlist || !playlist.player || playlist.currentIndex <= 0) {
     await interaction.reply({
       content: "❌ There's no previous track to skip to",
       flags: MessageFlags.Ephemeral
@@ -13,19 +13,19 @@ export default async function handlePreviousTrack(interaction, client) {
   }
 
   try {
-    currentShow.currentIndex--;
+    playlist.currentIndex--;
 
-    if (currentShow.currentIndex >= 0) {
-      const track = currentShow.playlist[currentShow.currentIndex];
+    if (playlist.currentIndex >= 0) {
+      const track = playlist.playlist[playlist.currentIndex];
       const trackUrl = track.mp3_url;
       const trackLink = `https://phish.in/${track.show_date}/${track.slug}`;
 
       if (trackUrl) {
         const resource = createAudioResource(trackUrl);
-        currentShow.player.play(resource);
+        playlist.player.play(resource);
 
         await interaction.reply({
-          content: `⏪ Previous track: ${track.title} - ${currentShow.formattedDate} - \`${trackLink}\``,
+          content: `⏪ Previous track: ${track.title} - ${playlist.formattedDate} - \`${trackLink}\``,
           flags: MessageFlags.Ephemeral
         });
       } else {

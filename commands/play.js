@@ -17,13 +17,11 @@ export default async function handlePlay(interaction, client) {
 
   await interaction.deferReply();
 
-  const currentShow = client.shows?.get(interaction.guild.id);
+  const playlist = client.playlists?.get(interaction.guild.id);
 
-  if (currentShow && currentShow.isPaused) {
-    // If there is a paused show, resume playback
+  if (playlist && playlist.isPaused) {
     await handleResumePlayback(interaction, client);
   } else if (!query || query.toLowerCase() === "random") {
-    // If there's no paused show, start a random show
     await handleRandomShow(interaction, client, voiceChannel);
   } else {
     await interaction.editReply("❌ Only 'random' or empty queries are supported right now.");
@@ -60,8 +58,8 @@ async function handleRandomShow(interaction, client, voiceChannel) {
     connection.subscribe(player);
 
     const playlist = [...tracks];
-    client.shows = client.shows || new Map();
-    client.shows.set(interaction.guild.id, { playlist, player, connection, currentIndex: 0, formattedDate, isPaused: false });
+    client.playlists = client.playlists || new Map();
+    client.playlists.set(interaction.guild.id, { playlist, player, connection, currentIndex: 0, formattedDate, isPaused: false });
 
     await playNextTrack(interaction, client);
   } catch (error) {
@@ -71,26 +69,17 @@ async function handleRandomShow(interaction, client, voiceChannel) {
 }
 
 async function handleResumePlayback(interaction, client) {
-  const currentShow = client.shows.get(interaction.guild.id);
-
-  if (!currentShow || !currentShow.player) {
-    await interaction.reply({
-      content: "❌ There's no show to resume.",
-      flags: MessageFlags.Ephemeral
-    });
-    return;
-  }
+  const playlist = client.playlists.get(interaction.guild.id);
 
   try {
-    currentShow.player.unpause();
-    currentShow.isPaused = false;
+    playlist.player.unpause();
+    playlist.isPaused = false;
 
-    // Fetch the current track's information
-    const track = currentShow.playlist[currentShow.currentIndex];
+    const track = playlist.playlist[playlist.currentIndex];
     const trackLink = `https://phish.in/${track.show_date}/${track.slug}`;
-    const trackDisplay = `${track.title} - ${currentShow.formattedDate} - \`${trackLink}\``;
+    const trackDisplay = `${track.title} - ${playlist.formattedDate} - \`${trackLink}\``;
 
-    client.shows.set(interaction.guild.id, currentShow);  // Update state
+    client.playlists.set(interaction.guild.id, playlist);  // Update state
 
     await interaction.editReply(`▶️ Playback resumed: ${trackDisplay}`);
   } catch (error) {
@@ -100,34 +89,34 @@ async function handleResumePlayback(interaction, client) {
 }
 
 async function playNextTrack(interaction, client) {
-  const currentShow = client.shows.get(interaction.guild.id);
+  const playlist = client.playlists.get(interaction.guild.id);
 
-  if (!currentShow || currentShow.currentIndex >= currentShow.playlist.length) {
+  if (!playlist || playlist.currentIndex >= playlist.playlist.length) {
     await interaction.editReply("Finished playing all tracks.");
-    currentShow.connection.destroy();
-    client.shows.delete(interaction.guild.id);
+    playlist.connection.destroy();
+    client.playlists.delete(interaction.guild.id);
     return;
   }
 
-  const track = currentShow.playlist[currentShow.currentIndex];
+  const track = playlist.playlist[playlist.currentIndex];
   const trackUrl = track.mp3_url;
   const trackLink = `https://phish.in/${track.show_date}/${track.slug}`;
 
   if (!trackUrl) {
-    currentShow.currentIndex++;
+    playlist.currentIndex++;
     await playNextTrack(interaction, client);
     return;
   }
 
   const resource = createAudioResource(trackUrl);
-  currentShow.player.play(resource);
+  playlist.player.play(resource);
 
-  currentShow.player.once(AudioPlayerStatus.Idle, () => {
-    currentShow.currentIndex++;
+  playlist.player.once(AudioPlayerStatus.Idle, () => {
+    playlist.currentIndex++;
     playNextTrack(interaction, client);
   });
 
-  const formattedDate = currentShow.formattedDate;
+  const formattedDate = playlist.formattedDate;
   const trackDisplay = `${track.title} - ${formattedDate} - \`${trackLink}\``;
 
   await interaction.editReply(`▶️ Now playing: ${trackDisplay}`);

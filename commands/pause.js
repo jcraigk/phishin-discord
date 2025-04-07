@@ -1,9 +1,9 @@
 import { MessageFlags } from "discord.js";
 
 export default async function handlePause(interaction, client) {
-  const currentShow = client.shows?.get(interaction.guild.id);
+  const playlist = client.playlists?.get(interaction.guild.id);
 
-  if (!currentShow || !currentShow.player) {
+  if (!playlist || !playlist.player) {
     await interaction.reply({
       content: "⏹️ Playback is currently stopped",
       flags: MessageFlags.Ephemeral
@@ -13,13 +13,13 @@ export default async function handlePause(interaction, client) {
 
   try {
     // Pause the audio player
-    currentShow.player.pause();
+    playlist.player.pause();
 
     // Mark the playback as paused
-    currentShow.isPaused = true;
+    playlist.isPaused = true;
 
     // Update the stored state
-    client.shows.set(interaction.guild.id, currentShow);
+    client.playlists.set(interaction.guild.id, playlist);
 
     await interaction.reply("⏸️ Playback paused. Use `/phishin play` to resume.");
   } catch (error) {
