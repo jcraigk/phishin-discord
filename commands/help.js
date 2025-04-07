@@ -5,11 +5,11 @@ export default async function handleHelp(interaction) {
     content:
       "`/phishin help` - Show this help message\n" +
       "`/phishin show [date]` - Show setlist for a specific date\n" +
-      "`/phishin play [query]` - Play music based on your input (or random if blank)\n" +
+      "`/phishin play [query]` - Play music based on your input (or random show if blank)\n" +
       "`/phishin [stop|pause|next|previous]` - Control playback\n" +
-      "`/phishin playlist info` - Show the current playlist\n" +
-      "`/phishin playlist add [query]` - Add track(s) to the playlist\n" +
-      "`/phishin playlist remove [track #]` - Remove a track from the playlist\n\n" +
+      "`/phishin playlist` - Show the current playlist\n" +
+      "`/phishin add [query]` - Add track(s) to the playlist\n" +
+      "`/phishin remove [track #]` - Remove a track from the playlist\n\n" +
       "**[query] can be:**\n" +
       "- Date (e.g., `1995-10-31`, `Oct 31 1995`): A specific show\n" +
       "- Year (e.g., `1997`): A random show from that year\n" +
