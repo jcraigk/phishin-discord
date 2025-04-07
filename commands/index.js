@@ -1,24 +1,27 @@
 import { SlashCommandBuilder } from "discord.js";
 
 import handleHelp from "./help.js";
-import handlePause from "./pause.js";
-import handlePlay from "./play.js";
 import handleShow from "./show.js";
+import handlePlay from "./play.js";
+import handlePause from "./pause.js";
 import handleStop from "./stop.js";
 import handleNextTrack from "./next.js";
 import handlePreviousTrack from "./previous.js";
 import handlePlaylist from "./playlist.js";
+import handleAdd from "./add.js";
+import handleRemove from "./remove.js";
 
 const commandHandlers = {
   help: handleHelp,
-  pause: handlePause,
-  play: handlePlay,
   show: handleShow,
+  play: handlePlay,
+  pause: handlePause,
   stop: handleStop,
   next: handleNextTrack,
   previous: handlePreviousTrack,
-  prev: handlePreviousTrack,
   playlist: handlePlaylist,
+  add: handleAdd,
+  remove: handleRemove
 };
 
 export const data = new SlashCommandBuilder()
@@ -74,23 +77,28 @@ export const data = new SlashCommandBuilder()
   .addSubcommand(subcommand =>
     subcommand
       .setName("playlist")
-      .setDescription("Manage playlist")
-      .addStringOption(option =>
-        option
-          .setName("action")
-          .setDescription("Action to perform: info, add, or remove")
-          .setRequired(true)
-          .addChoices(
-            { name: "info", value: "info" },
-            { name: "add", value: "add" },
-            { name: "remove", value: "remove" }
-          )
-      )
+      .setDescription("Show the current playlist")
+  )
+  .addSubcommand(subcommand =>
+    subcommand
+      .setName("add")
+      .setDescription("Add tracks to the playlist")
       .addStringOption(option =>
         option
           .setName("query")
           .setDescription("Song name, date, venue, or Phish.in URL")
-          .setRequired(false)
+          .setRequired(true)
+      )
+  )
+  .addSubcommand(subcommand =>
+    subcommand
+      .setName("remove")
+      .setDescription("Remove a track from the playlist by its number")
+      .addIntegerOption(option =>
+        option
+          .setName("track_number")
+          .setDescription("The track number to remove (1-based index)")
+          .setRequired(true)
       )
   );
 

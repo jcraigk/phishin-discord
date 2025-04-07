@@ -1,7 +1,8 @@
 import { MessageFlags } from "discord.js";
-import { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } from "@discordjs/voice";
+import { AudioPlayerStatus, createAudioResource } from "@discordjs/voice";
 import { fetchRandomShow, fetchTracksByQuery } from "../services/phishinAPI.js";
 import { formatDate } from "../utils/timeUtils.js";
+import { getOrCreatePlaylist } from "../utils/playlistUtils.js";
 
 export default async function handlePlay(interaction, client) {
   const query = interaction.options.getString("query");
@@ -17,45 +18,28 @@ export default async function handlePlay(interaction, client) {
 
   await interaction.deferReply();
 
-  const playlist = client.playlists?.get(interaction.guild.id);
+  const playlist = getOrCreatePlaylist(client, interaction.guild.id, voiceChannel);
 
-  if (playlist?.isPaused) {
+  if (playlist.isPaused) {
     await handleResumePlayback(interaction, client);
   } else {
-    await handleQuery(interaction, client, voiceChannel, query);
+    await handleQuery(interaction, client, query);
   }
 }
 
-async function handleQuery(interaction, client, voiceChannel, query) {
+async function handleQuery(interaction, client, query) {
   try {
-    let showData;
     let tracks = [];
 
     if (!query || query.toLowerCase() === "random") {
-      showData = await fetchRandomShow();
+      const showData = await fetchRandomShow();
       tracks = showData.tracks;
     } else {
       tracks = await fetchTracksByQuery(query);
     }
 
-    const connection = joinVoiceChannel({
-      channelId: voiceChannel.id,
-      guildId: interaction.guild.id,
-      adapterCreator: interaction.guild.voiceAdapterCreator
-    });
-
-    const player = createAudioPlayer();
-    connection.subscribe(player);
-
-    client.playlists = client.playlists || new Map();
-    client.playlists.set(interaction.guild.id, {
-      tracks: tracks,
-      player,
-      connection,
-      currentIndex: 0,
-      isPaused: false,
-      voiceChannelName: voiceChannel.name
-    });
+    const playlist = client.playlists.get(interaction.guild.id);
+    playlist.tracks.push(...tracks);
 
     await playNextTrack(interaction, client);
   } catch (error) {
@@ -73,8 +57,6 @@ async function handleResumePlayback(interaction, client) {
 
     const track = playlist.tracks[playlist.currentIndex];
     const trackDisplay = `${track.title} - ${formatDate(track.show_date)}`;
-
-    client.playlists.set(interaction.guild.id, playlist);
 
     await interaction.editReply(`▶️ Playback resumed: ${trackDisplay}`);
   } catch (error) {
@@ -111,6 +93,5 @@ async function playNextTrack(interaction, client) {
   });
 
   const trackDisplay = `${track.title} - ${formatDate(track.show_date)}`;
-
   await interaction.editReply(`Now playing in 🔊 **${playlist.voiceChannelName}**: ${trackDisplay}`);
 }
