@@ -1,4 +1,4 @@
-import { MessageFlags } from "discord.js";
+import { EmbedBuilder, MessageFlags } from "discord.js";
 import { AudioPlayerStatus, createAudioResource } from "@discordjs/voice";
 import { fetchRandomShow, fetchTracksByQuery } from "../services/phishinAPI.js";
 import { formatDate } from "../utils/timeUtils.js";
@@ -39,6 +39,12 @@ async function handleQuery(interaction, client, query) {
     }
 
     const playlist = client.playlists.get(interaction.guild.id);
+
+    // Clear the playlist before adding new tracks
+    playlist.tracks = [];
+    playlist.currentIndex = 0;
+
+    // Add the new tracks
     playlist.tracks.push(...tracks);
 
     await playNextTrack(interaction, client);
@@ -57,9 +63,16 @@ async function handleResumePlayback(interaction, client) {
     playlist.isPaused = false;
 
     const track = playlist.tracks[playlist.currentIndex];
-    const trackDisplay = `${track.title} - ${formatDate(track.show_date)}`;
+    const trackLink = `https://phish.in/${track.show_date}/${track.slug}`;
+    const showLink = `https://phish.in/${track.show_date}`;
 
-    await interaction.editReply(`▶️ Playback resumed: ${trackDisplay}`);
+    const embed = new EmbedBuilder()
+      .setTitle(`▶️ Playback resumed in 🔊 ${playlist.voiceChannelName}`)
+      .setDescription(`[${track.title}](${trackLink}) - [${formatDate(track.show_date)}](${showLink})`)
+      .setColor("#1DB954")
+      .setFooter({ text: `Track ${playlist.currentIndex + 1} of ${playlist.tracks.length}` });
+
+    await interaction.editReply({ embeds: [embed] });
   } catch (error) {
     console.error("Error resuming playback:", error);
     await interaction.editReply("❌ An error occurred while trying to resume playback.");
@@ -94,6 +107,14 @@ async function playNextTrack(interaction, client) {
   });
   playlist.isActive = true;
 
-  const trackDisplay = `${track.title} - ${formatDate(track.show_date)}`;
-  await interaction.editReply(`Now playing in 🔊 **${playlist.voiceChannelName}**: ${trackDisplay}`);
+  const trackLink = `https://phish.in/${track.show_date}/${track.slug}`;
+  const showLink = `https://phish.in/${track.show_date}`;
+
+  const embed = new EmbedBuilder()
+    .setTitle(`Now playing`)
+    .setDescription(`[${track.title}](${trackLink}) - [${formatDate(track.show_date)}](${showLink})`)
+    .setColor("#1DB954")
+    .setFooter({ text: `Track ${playlist.currentIndex + 1} of ${playlist.tracks.length} in 🔊 ${playlist.voiceChannelName}` });
+
+  await interaction.editReply({ embeds: [embed] });
 }

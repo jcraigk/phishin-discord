@@ -1,4 +1,4 @@
-import { MessageFlags } from "discord.js";
+import { EmbedBuilder, MessageFlags } from "discord.js";
 import { createAudioResource } from "@discordjs/voice";
 import { formatDate } from "../utils/timeUtils.js";
 
@@ -20,13 +20,20 @@ export default async function handlePreviousTrack(interaction, client) {
       const track = playlist.tracks[playlist.currentIndex];
       const trackUrl = track.mp3_url;
       const trackLink = `https://phish.in/${track.show_date}/${track.slug}`;
+      const showLink = `https://phish.in/${track.show_date}`;
 
       if (trackUrl) {
         const resource = createAudioResource(trackUrl);
         playlist.player.play(resource);
 
+        const embed = new EmbedBuilder()
+          .setTitle(`Playing previous track`)
+          .setDescription(`[${track.title}](${trackLink}) - [${formatDate(track.show_date)}](${showLink})`)
+          .setColor("#1DB954")
+          .setFooter({ text: `Track ${playlist.currentIndex + 1} of ${playlist.tracks.length} in 🔊 ${playlist.voiceChannelName}` });
+
         await interaction.reply({
-          content: `Previous track in 🔊 **${playlist.voiceChannelName}**: ${track.title} - ${formatDate(track.show_date)}`,
+          embeds: [embed],
           flags: MessageFlags.Ephemeral
         });
       } else {

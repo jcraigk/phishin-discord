@@ -1,4 +1,4 @@
-import { MessageFlags } from "discord.js";
+import { EmbedBuilder, MessageFlags } from "discord.js";
 import { formatDate } from "../utils/timeUtils.js";
 
 export default async function handleRemove(interaction, client) {
@@ -50,8 +50,16 @@ export default async function handleRemove(interaction, client) {
 
   client.playlists.set(interaction.guild.id, playlist);
 
+  const trackLink = `https://phish.in/${removedTrack.show_date}/${removedTrack.slug}`;
+  const showLink = `https://phish.in/${removedTrack.show_date}`;
+
+  const embed = new EmbedBuilder()
+    .setTitle("🗑️ Track removed from playlist")
+    .setDescription(`[${removedTrack.title}](${trackLink}) - [${formatDate(removedTrack.show_date)}](${showLink})`)
+    .setColor("#1DB954")
+
   await interaction.reply({
-    content: `🗑️ Removed track: ${removedTrack.title} - ${formatDate(removedTrack.show_date)}`,
+    embeds: [embed],
     flags: MessageFlags.Ephemeral
   });
 }

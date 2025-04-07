@@ -46,7 +46,7 @@ export const data = new SlashCommandBuilder()
   .addSubcommand(subcommand =>
     subcommand
       .setName("play")
-      .setDescription("Play Phish content")
+      .setDescription("Play Phish content in your voice channel")
       .addStringOption(option =>
         option
           .setName("query")

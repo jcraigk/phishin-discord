@@ -15,9 +15,15 @@ export default async function handlePause(interaction, client) {
     playlist.player.pause();
     playlist.isPaused = true;
     client.playlists.set(interaction.guild.id, playlist);
-    await interaction.reply("⏸️ Playback paused. Use `/phishin play` to resume.");
+    await interaction.reply({
+      content: "⏸️ Playback paused. Use `/phishin play` to resume.",
+      flags: MessageFlags.Ephemeral
+    });
   } catch (error) {
     console.error("Error pausing playback:", error);
-    await interaction.reply("❌ An error occurred while trying to pause playback.");
+    await interaction.reply({
+      content: "❌ An error occurred while trying to pause playback.",
+      flags: MessageFlags.Ephemeral
+    });
   }
 }

@@ -52,7 +52,24 @@ See [Phish.in](https://github.com/jcraigk/phishin) for more information about th
 
 ## Commands
 
-TODO
+The bot implements the `/phishin` command and understands the following subcommands:
+
+```
+/phishin help - Show this help message
+/phishin show [date] - Show setlist for a specific date
+/phishin play [query] - Play music based on your input (or random show if blank)
+/phishin [stop|pause|next|previous] - Control playback
+/phishin playlist - Show the current playlist
+/phishin add [query] - Add track(s) to the playlist
+/phishin remove [track #] - Remove a track from the playlist
+
+[query] can be:
+- Date (e.g., 1995-10-31, Oct 31 1995): Specific show
+- Year (e.g., 1997): Pick a random show from that year
+- Song name (e.g., Tweezer): Pick random versions of that song
+- Venue name (e.g., MSG): Pick a random show from that venue
+- URL (e.g., https://phish.in/...): Specific show, track, or playlist
+```
 
 
 # Production Deployment
