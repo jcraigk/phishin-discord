@@ -18,15 +18,8 @@ export function parseFlexibleDate(dateStr) {
 
 // Format a date as "Dec 1, 1995"
 export function formatDate(date) {
-  if (!(date instanceof Date)) {
-    date = new Date(date);
-  }
-
-  if (isNaN(date.getTime())) {
-    console.error("Invalid date provided to formatDate");
-    return null;
-  }
-
+  if (!(date instanceof Date)) date = new Date(date);
+  if (isNaN(date.getTime())) return null;
   return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "short",

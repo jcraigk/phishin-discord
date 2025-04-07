@@ -8,3 +8,6 @@ install:
 
 start:
 	npm start
+
+spec:
+	npx vitest --reporter=dot
