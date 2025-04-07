@@ -45,15 +45,17 @@ async function displayPlaylist(interaction, client) {
   }
 
   const trackList = playlist.tracks
-    .map((track, index) =>
-      `${index + 1}. ${track.title} - ${formatDate(track.show_date)} (${formatDuration(track.duration, "colons")})`
-    )
+    .map((track, index) => {
+      const trackInfo = `${index + 1}. ${track.title} - ${formatDate(track.show_date)} (${formatDuration(track.duration, "colons")})`;
+      return index === playlist.currentIndex ? `${trackInfo}  [NOW PLAYING]` : trackInfo;
+    })
     .join("\n");
+
 
   const totalDurationMs = playlist.tracks.reduce((sum, track) => sum + track.duration, 0);
 
   await interaction.reply({
-    content: `**Current Playlist (${formatDuration(totalDurationMs)}):**\n${trackList}`,
+    content: `**Current Playlist in 🔊 ${playlist.voiceChannelName} (${formatDuration(totalDurationMs)}):**\n${trackList}`,
     flags: MessageFlags.Ephemeral
   });
 }

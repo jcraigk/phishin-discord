@@ -26,7 +26,7 @@ export default async function handlePreviousTrack(interaction, client) {
         playlist.player.play(resource);
 
         await interaction.reply({
-          content: `⏪ Previous track: ${track.title} - ${formatDate(track.show_date)}`,
+          content: `Previous track in 🔊 **${playlist.voiceChannelName}**: ${track.title} - ${formatDate(track.show_date)}`,
           flags: MessageFlags.Ephemeral
         });
       } else {

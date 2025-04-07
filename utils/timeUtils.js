@@ -15,10 +15,11 @@ export function parseFlexibleDate(dateStr) {
     return null;
   }
 }
+
 // Format a date as "Dec 1, 1995"
 export function formatDate(date) {
   if (!(date instanceof Date)) {
-    date = new Date(date); // Convert to Date object if it's a string
+    date = new Date(date);
   }
 
   if (isNaN(date.getTime())) {
@@ -33,6 +34,7 @@ export function formatDate(date) {
   });
 }
 
+// Format ms as "3h 10m" (defualt style `letters`) or "8:23" (style `colons`)
 export function formatDuration(ms, style = 'letters') {
   if (ms < 0) ms = -ms;
 

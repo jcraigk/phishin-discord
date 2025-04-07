@@ -48,7 +48,14 @@ async function handleQuery(interaction, client, voiceChannel, query) {
     connection.subscribe(player);
 
     client.playlists = client.playlists || new Map();
-    client.playlists.set(interaction.guild.id, { tracks: tracks, player, connection, currentIndex: 0, isPaused: false });
+    client.playlists.set(interaction.guild.id, {
+      tracks: tracks,
+      player,
+      connection,
+      currentIndex: 0,
+      isPaused: false,
+      voiceChannelName: voiceChannel.name
+    });
 
     await playNextTrack(interaction, client);
   } catch (error) {
@@ -88,7 +95,6 @@ async function playNextTrack(interaction, client) {
 
   const track = playlist.tracks[playlist.currentIndex];
   const trackUrl = track.mp3_url;
-  const trackLink = `https://phish.in/${track.show_date}/${track.slug}`;
 
   if (!trackUrl) {
     playlist.currentIndex++;
@@ -104,8 +110,7 @@ async function playNextTrack(interaction, client) {
     playNextTrack(interaction, client);
   });
 
-  const formattedDate = playlist.formattedDate;
   const trackDisplay = `${track.title} - ${formatDate(track.show_date)}`;
 
-  await interaction.editReply(`▶️ Now playing: ${trackDisplay}`);
+  await interaction.editReply(`Now playing in 🔊 **${playlist.voiceChannelName}**: ${trackDisplay}`);
 }
