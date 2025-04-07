@@ -1,5 +1,6 @@
 import { MessageFlags } from "discord.js";
 import { createAudioResource } from "@discordjs/voice";
+import { formatDate } from "../utils/timeUtils.js";
 
 export default async function handlePreviousTrack(interaction, client) {
   const playlist = client.playlists?.get(interaction.guild.id);
@@ -16,7 +17,7 @@ export default async function handlePreviousTrack(interaction, client) {
     playlist.currentIndex--;
 
     if (playlist.currentIndex >= 0) {
-      const track = playlist.playlist[playlist.currentIndex];
+      const track = playlist.tracks[playlist.currentIndex];
       const trackUrl = track.mp3_url;
       const trackLink = `https://phish.in/${track.show_date}/${track.slug}`;
 
@@ -25,7 +26,7 @@ export default async function handlePreviousTrack(interaction, client) {
         playlist.player.play(resource);
 
         await interaction.reply({
-          content: `⏪ Previous track: ${track.title} - ${playlist.formattedDate} - \`${trackLink}\``,
+          content: `⏪ Previous track: ${track.title} - ${formatDate(track.show_date)}`,
           flags: MessageFlags.Ephemeral
         });
       } else {
@@ -40,7 +41,7 @@ export default async function handlePreviousTrack(interaction, client) {
   } catch (error) {
     console.error("Error skipping to previous track:", error);
     await interaction.reply({
-      content: "❌ An error occurred while trying to go to the previous track",
+      content: "❌ Unable to play previous track",
       flags: MessageFlags.Ephemeral
     });
   }

@@ -12,15 +12,9 @@ export default async function handlePause(interaction, client) {
   }
 
   try {
-    // Pause the audio player
     playlist.player.pause();
-
-    // Mark the playback as paused
     playlist.isPaused = true;
-
-    // Update the stored state
     client.playlists.set(interaction.guild.id, playlist);
-
     await interaction.reply("⏸️ Playback paused. Use `/phishin play` to resume.");
   } catch (error) {
     console.error("Error pausing playback:", error);

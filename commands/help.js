@@ -2,18 +2,20 @@ import { MessageFlags } from "discord.js";
 
 export default async function handleHelp(interaction) {
   await interaction.reply({
-    content: "**Bot Commands:**\n\n" +
-             "`/phishin help` - Show this help message\n" +
-             "`/phishin show [date]` - Show info/setlist for a specific date\n" +
-             "`/phishin play` - Play a random Phish show or resume paused playback\n" +
-             "`/phishin play [query]` - Play based on your input:\n" +
-             "  • Date (1995-10-31, Oct 31 1995, etc.): Play that specific show\n" +
-             "  • Year (1997): Play a random show from that year\n" +
-             "  • Song name (Tweezer): Play versions of that song\n" +
-             "  • Venue name (Madison Square Garden): Play shows from that venue\n" +
-             "`/phishin [stop|pause|next|previous]` - Control the current playback\n" +
-             "**Note:** You must be in a voice channel to use the play commands.\n\n" +
-             "API provided by `https://phish.in`",
+    content:
+      "`/phishin help` - Show this help message\n" +
+      "`/phishin show [date]` - Show setlist for a specific date\n" +
+      "`/phishin play [query]` - Play music based on your input (or random if blank)\n" +
+      "`/phishin [stop|pause|next|previous]` - Control playback\n" +
+      "`/phishin playlist info` - Show the current playlist\n" +
+      "`/phishin playlist add [query]` - Add track(s) to the playlist\n" +
+      "`/phishin playlist remove [track #]` - Remove a track from the playlist\n\n" +
+      "**[query] can be:**\n" +
+      "- Date (e.g., `1995-10-31`, `Oct 31 1995`): A specific show\n" +
+      "- Year (e.g., `1997`): A random show from that year\n" +
+      "- Song name (e.g., `Tweezer`): Random versions of that song\n" +
+      "- Venue name (e.g., `MSG`): A random show from that venue\n" +
+      "- URL (e.g., `https://phish.in/...`): A specific show, track, or playlist",
     flags: MessageFlags.Ephemeral
   });
 }

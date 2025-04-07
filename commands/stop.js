@@ -12,15 +12,9 @@ export default async function handleStop(interaction, client) {
   }
 
   try {
-    // Stop the audio player
     playlist.player.stop();
-
-    // Destroy the connection
     playlist.connection.destroy();
-
-    // Clear the playlist and any stored data
     client.playlists.delete(interaction.guild.id);
-
     await interaction.reply("⏹️ Playback stopped and playlist cleared");
   } catch (error) {
     console.error("Error stopping playback:", error);

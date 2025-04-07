@@ -1,5 +1,5 @@
 import { EmbedBuilder } from "discord.js";
-import { parseFlexibleDate, formatDate } from "../utils/dateUtils.js";
+import { parseFlexibleDate, formatDate } from "../utils/timeUtils.js";
 import { fetchRandomShow, fetchShow } from "../services/phishinAPI.js";
 
 export default async function handleShow(interaction) {
@@ -27,9 +27,7 @@ export default async function handleShow(interaction) {
         return;
       }
 
-      const formattedDate = formatDate(parsedDate);
-
-      const showResponse = await fetchShow(formattedDate);
+      const showResponse = await fetchShow(parsedDate);
 
       if (showResponse.notFound) {
         await interaction.editReply("❌ Show not found.");
@@ -39,13 +37,10 @@ export default async function handleShow(interaction) {
       showData = showResponse;
     }
 
-    // Calculate the total duration in hours, minutes, and seconds
     const totalSeconds = Math.floor(showData.duration / 1000);
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
-
-    // Format the duration
     const durationDisplay = hours > 0
       ? `${hours}h ${minutes}m`
       : `${minutes}m ${seconds}s`;
@@ -74,13 +69,10 @@ export default async function handleShow(interaction) {
       setlistDisplay += `[${track.title}](https://phish.in/${showData.date}/${track.slug})\n`;
     });
 
-    // Fetch the smallest album art thumbnail
     const albumArtUrl = showData.cover_art_urls?.medium || null;
-
     let embedTitle = `Phish - ${formatDate(showData.date)}`;
     isRandom && (embedTitle = `🎲 ${embedTitle}`);
 
-    // Create an embed with thumbnail
     const embed = new EmbedBuilder()
       .setTitle(embedTitle)
       .setDescription(setlistDisplay)

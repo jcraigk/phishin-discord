@@ -7,6 +7,7 @@ import handleShow from "./show.js";
 import handleStop from "./stop.js";
 import handleNextTrack from "./next.js";
 import handlePreviousTrack from "./previous.js";
+import handlePlaylist from "./playlist.js";
 
 const commandHandlers = {
   help: handleHelp,
@@ -16,7 +17,8 @@ const commandHandlers = {
   stop: handleStop,
   next: handleNextTrack,
   previous: handlePreviousTrack,
-  prev: handlePreviousTrack
+  prev: handlePreviousTrack,
+  playlist: handlePlaylist,
 };
 
 export const data = new SlashCommandBuilder()
@@ -68,6 +70,28 @@ export const data = new SlashCommandBuilder()
     subcommand
       .setName("previous")
       .setDescription("Go back to the previous track in the playlist")
+  )
+  .addSubcommand(subcommand =>
+    subcommand
+      .setName("playlist")
+      .setDescription("Manage playlist")
+      .addStringOption(option =>
+        option
+          .setName("action")
+          .setDescription("Action to perform: info, add, or remove")
+          .setRequired(true)
+          .addChoices(
+            { name: "info", value: "info" },
+            { name: "add", value: "add" },
+            { name: "remove", value: "remove" }
+          )
+      )
+      .addStringOption(option =>
+        option
+          .setName("query")
+          .setDescription("Song name, date, venue, or Phish.in URL")
+          .setRequired(false)
+      )
   );
 
 export async function execute(interaction, client) {

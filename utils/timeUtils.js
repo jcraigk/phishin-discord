@@ -15,12 +15,6 @@ export function parseFlexibleDate(dateStr) {
     return null;
   }
 }
-
-// Check if the query is just a year
-export function isExactYear(str) {
-  return /^\d{4}$/.test(str);
-}
-
 // Format a date as "Dec 1, 1995"
 export function formatDate(date) {
   if (!(date instanceof Date)) {
@@ -37,4 +31,24 @@ export function formatDate(date) {
     month: "short",
     day: "numeric"
   });
+}
+
+export function formatDuration(ms, style = 'letters') {
+  if (ms < 0) ms = -ms;
+
+  const totalSeconds = Math.floor(ms / 1000);
+  const totalMinutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  if (style === 'colons') {
+    return `${totalMinutes}:${String(seconds).padStart(2, '0')}`;
+  } else {
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else {
+      return `${minutes}m ${seconds}s`;
+    }
+  }
 }
