@@ -32,7 +32,22 @@ export default async function handleRemove(interaction, client) {
     return;
   }
 
+  // Prevent removal of currently playing track
+  if (index === playlist.currentIndex) {
+    await interaction.reply({
+      content: `❌ You can't remove the current track: **${playlist.tracks[index].title}**.`,
+      flags: MessageFlags.Ephemeral
+    });
+    return;
+  }
+
   const removedTrack = playlist.tracks.splice(index, 1)[0];
+
+  // Adjust currentIndex if necessary
+  if (index < playlist.currentIndex) {
+    playlist.currentIndex--;
+  }
+
   client.playlists.set(interaction.guild.id, playlist);
 
   await interaction.reply({

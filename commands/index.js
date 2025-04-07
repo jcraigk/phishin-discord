@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 
 import handleHelp from "./help.js";
 import handleShow from "./show.js";
@@ -110,7 +110,7 @@ export async function execute(interaction, client) {
   } else {
     await interaction.reply({
       content: "Sorry, I don't understand",
-      ephemeral: true
+      flags: MessageFlags.Ephemeral
     });
   }
 }

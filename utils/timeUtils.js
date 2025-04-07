@@ -27,11 +27,12 @@ export function formatDate(date) {
     return null;
   }
 
-  return date.toLocaleDateString("en-US", {
+  return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "short",
-    day: "numeric"
-  });
+    day: "numeric",
+    timeZone: "UTC"
+  }).format(date);
 }
 
 // Format ms as "3h 10m" (defualt style `letters`) or "8:23" (style `colons`)

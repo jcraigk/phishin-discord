@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { Client, GatewayIntentBits, Collection } from "discord.js";
+import { Client, GatewayIntentBits, Collection, MessageFlags } from "discord.js";
 import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v10";
 import { data, execute } from "./commands/index.js";
@@ -51,7 +51,7 @@ client.on("interactionCreate", async interaction => {
     console.error(error);
     await interaction.reply({
       content: "There was an error executing this command!",
-      ephemeral: true
+      flags: MessageFlags.Ephemeral
     });
   }
 });

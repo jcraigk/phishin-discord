@@ -53,6 +53,7 @@ async function handleResumePlayback(interaction, client) {
 
   try {
     playlist.player.unpause();
+    playlist.isActive = true;
     playlist.isPaused = false;
 
     const track = playlist.tracks[playlist.currentIndex];
@@ -91,6 +92,7 @@ async function playNextTrack(interaction, client) {
     playlist.currentIndex++;
     playNextTrack(interaction, client);
   });
+  playlist.isActive = true;
 
   const trackDisplay = `${track.title} - ${formatDate(track.show_date)}`;
   await interaction.editReply(`Now playing in 🔊 **${playlist.voiceChannelName}**: ${trackDisplay}`);
