@@ -18,7 +18,7 @@ export default async function handleAdd(interaction, client) {
 
     if (!tracks || tracks.length === 0) {
       await interaction.reply({
-        content: "❌ No tracks found matching your query.",
+        content: "❌ No tracks found matching your query",
         flags: MessageFlags.Ephemeral
       });
       return;
@@ -28,13 +28,13 @@ export default async function handleAdd(interaction, client) {
     playlist.tracks.push(...tracks);
 
     await interaction.reply({
-      content: `➕ Added ${tracks.length} track(s) to the playlist.`,
+      content: `➕ Added ${tracks.length} track${tracks.length === 1 ? "" : "s"} to the playlist`,
       flags: MessageFlags.Ephemeral
     });
   } catch (error) {
     console.error("Error adding tracks to playlist:", error);
     await interaction.reply({
-      content: "❌ An error occurred while adding tracks to the playlist.",
+      content: "❌ An error occurred while adding tracks to the playlist",
       flags: MessageFlags.Ephemeral
     });
   }
