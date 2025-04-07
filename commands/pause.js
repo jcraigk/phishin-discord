@@ -5,7 +5,7 @@ export default async function handlePause(interaction, client) {
 
   if (!playlist || !playlist.player) {
     await interaction.reply({
-      content: "⏹️ Playback is currently stopped",
+      content: "Playback is currently stopped",
       flags: MessageFlags.Ephemeral
     });
     return;
@@ -16,7 +16,7 @@ export default async function handlePause(interaction, client) {
     playlist.isPaused = true;
     client.playlists.set(interaction.guild.id, playlist);
     await interaction.reply({
-      content: "⏸️ Playback paused. Use `/phishin play` to resume.",
+      content: "Playback paused. Use `/phishin play` to resume.",
       flags: MessageFlags.Ephemeral
     });
   } catch (error) {

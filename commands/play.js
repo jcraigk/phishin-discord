@@ -5,25 +5,29 @@ import { formatDate } from "../utils/timeUtils.js";
 import { getOrCreatePlaylist } from "../utils/playlistUtils.js";
 
 export default async function handlePlay(interaction, client) {
-  const query = interaction.options.getString("query");
-  const voiceChannel = interaction.member.voice.channel;
+  try {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-  if (!voiceChannel) {
-    await interaction.reply({
-      content: "❌ You need to be in a voice channel to play music",
-      flags: MessageFlags.Ephemeral
-    });
-    return;
-  }
+    const query = interaction.options.getString("query");
+    const voiceChannel = interaction.member.voice.channel;
 
-  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    if (!voiceChannel) {
+      await interaction.editReply({
+        content: "❌ You need to be in a voice channel to play music"
+      });
+      return;
+    }
 
-  const playlist = getOrCreatePlaylist(client, interaction.guild.id, voiceChannel);
+    const playlist = getOrCreatePlaylist(client, interaction.guild.id, voiceChannel);
 
-  if (playlist.isPaused) {
-    await handleResumePlayback(interaction, client);
-  } else {
-    await handleQuery(interaction, client, query);
+    if (playlist.isPaused) {
+      await handleResumePlayback(interaction, client);
+    } else {
+      await handleQuery(interaction, client, query);
+    }
+  } catch (error) {
+    console.error("Error in handlePlay:", error);
+    await interaction.editReply("❌ An error occurred while trying to play music");
   }
 }
 
@@ -67,10 +71,10 @@ async function handleResumePlayback(interaction, client) {
     const showLink = `https://phish.in/${track.show_date}`;
 
     const embed = new EmbedBuilder()
-      .setTitle(`▶️ Playback resumed in 🔊 ${playlist.voiceChannelName}`)
+      .setTitle(`Playback resumed`)
       .setDescription(`[${track.title}](${trackLink}) - [${formatDate(track.show_date)}](${showLink})`)
       .setColor("#1DB954")
-      .setFooter({ text: `Track ${playlist.currentIndex + 1} of ${playlist.tracks.length}` });
+      .setFooter({ text: `Track ${playlist.currentIndex + 1} of ${playlist.tracks.length} in 🔊 ${playlist.voiceChannelName}` });
 
     await interaction.editReply({ embeds: [embed] });
   } catch (error) {
@@ -83,7 +87,7 @@ async function playNextTrack(interaction, client) {
   const playlist = client.playlists.get(interaction.guild.id);
 
   if (!playlist || playlist.currentIndex >= playlist.tracks.length) {
-    await interaction.editReply("⏹️ Finished playing all tracks");
+    await interaction.editReply("Finished playing all tracks");
     playlist.connection.destroy();
     client.playlists.delete(interaction.guild.id);
     return;
