@@ -22,7 +22,7 @@ export default async function handleRemove(interaction, client) {
     return;
   }
 
-  const index = trackNumber - 1; // Convert 1-based index to 0-based
+  const index = trackNumber - 1;
 
   if (index < 0 || index >= playlist.tracks.length) {
     await interaction.reply({
@@ -32,7 +32,6 @@ export default async function handleRemove(interaction, client) {
     return;
   }
 
-  // Prevent removal of currently playing track
   if (index === playlist.currentIndex) {
     await interaction.reply({
       content: `❌ You can't remove the current track: **${playlist.tracks[index].title}**.`,

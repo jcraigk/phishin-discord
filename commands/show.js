@@ -1,11 +1,11 @@
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, MessageFlags } from "discord.js";
 import { parseFlexibleDate, formatDate } from "../utils/timeUtils.js";
 import { fetchRandomShow, fetchShow } from "../services/phishinAPI.js";
 
 export default async function handleShow(interaction) {
   const dateInput = interaction.options.getString("date");
 
-  await interaction.deferReply();
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
   try {
     let showData;

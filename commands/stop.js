@@ -15,9 +15,15 @@ export default async function handleStop(interaction, client) {
     playlist.player.stop();
     playlist.connection.destroy();
     client.playlists.delete(interaction.guild.id);
-    await interaction.reply("⏹️ Playback stopped and playlist cleared");
+    await interaction.reply({
+      content: "⏹️ Playback stopped and playlist cleared",
+      flags: MessageFlags.Ephemeral
+    });
   } catch (error) {
     console.error("Error stopping playback:", error);
-    await interaction.reply("❌ An error occurred while trying to stop playback");
+    await interaction.reply({
+      content: "❌ An error occurred while trying to stop playback",
+      flags: MessageFlags.Ephemeral
+    });
   }
 }

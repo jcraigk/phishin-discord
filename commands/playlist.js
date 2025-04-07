@@ -4,8 +4,14 @@ import { formatDate, formatDuration } from "../utils/timeUtils.js";
 
 function formatTrack(track, index, isNowPlaying = false) {
   const trackLink = `https://phish.in/${track.show_date}/${track.slug}`;
-  const trackInfo = `${index + 1}. [${track.title}](https://phish.in/${track.show_date}/${track.slug}) - [${formatDate(track.show_date)}](https://phish.in/${track.show_date}) (${formatDuration(track.duration, "colons")})`;
-  return isNowPlaying ? `${trackInfo} [NOW PLAYING]` : trackInfo;
+  const titlePart = `[${track.title}](https://phish.in/${track.show_date}/${track.slug})`;
+  const datePart = `[${formatDate(track.show_date)}](https://phish.in/${track.show_date})`;
+  const durationPart = `(${formatDuration(track.duration, "colons")})`;
+
+  if (isNowPlaying) {
+    return `${index + 1}. **${titlePart} - ${datePart}** ${durationPart}`;
+  }
+  return `${index + 1}. ${titlePart} - ${datePart} ${durationPart}`;
 }
 
 export default async function displayPlaylist(interaction, client) {
@@ -19,7 +25,7 @@ export default async function displayPlaylist(interaction, client) {
     return;
   }
 
-  await interaction.deferReply();
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
   const totalDurationMs = playlist.tracks.reduce((sum, track) => sum + track.duration, 0);
   const currentIndex = playlist.currentIndex;

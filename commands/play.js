@@ -16,7 +16,7 @@ export default async function handlePlay(interaction, client) {
     return;
   }
 
-  await interaction.deferReply();
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
   const playlist = getOrCreatePlaylist(client, interaction.guild.id, voiceChannel);
 
