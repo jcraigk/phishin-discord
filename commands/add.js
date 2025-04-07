@@ -20,7 +20,7 @@ export default async function handleAdd(interaction, client) {
 
     await interaction.editReply(`➕ Added ${tracks.length} track${tracks.length === 1 ? "" : "s"} to the playlist`);
   } catch (error) {
-    console.error("Error adding tracks to playlist:", error);
+    // console.error("Error adding tracks to playlist:", error);
     await interaction.editReply("❌ An error occurred while adding tracks to the playlist");
   }
 }

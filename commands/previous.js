@@ -46,7 +46,7 @@ export default async function handlePreviousTrack(interaction, client) {
       });
     }
   } catch (error) {
-    console.error("Error skipping to previous track:", error);
+    // console.error("Error skipping to previous track:", error);
     await interaction.reply({
       content: "❌ Unable to play previous track",
       flags: MessageFlags.Ephemeral

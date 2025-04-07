@@ -2,6 +2,7 @@
 
 A Discord bot for [Phish.in](https://github.com/jcraigk/phishin) that can display setlists and play music in voice channels. Interfaces with [Phish.in API v2](https://petstore.swagger.io/?url=https%3A%2F%2Fphish.in/api/v2/swagger_doc) on the backend. See instructions below for development and self hosting.
 
+
 ## Commands
 
 The bot implements the `/phishin` slash command and understands the following subcommands:

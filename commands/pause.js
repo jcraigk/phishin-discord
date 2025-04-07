@@ -20,7 +20,7 @@ export default async function handlePause(interaction, client) {
       flags: MessageFlags.Ephemeral
     });
   } catch (error) {
-    console.error("Error pausing playback:", error);
+    // console.error("Error pausing playback:", error);
     await interaction.reply({
       content: "❌ An error occurred while trying to pause playback.",
       flags: MessageFlags.Ephemeral

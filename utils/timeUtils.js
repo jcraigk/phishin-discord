@@ -11,7 +11,7 @@ export function parseFlexibleDate(dateStr) {
 
     return null;
   } catch (error) {
-    console.error("Date parsing error:", error);
+    // console.error("Date parsing error:", error);
     return null;
   }
 }

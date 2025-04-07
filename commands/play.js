@@ -13,7 +13,7 @@ export default async function handlePlay(interaction, client) {
 
     if (!voiceChannel) {
       await interaction.editReply({
-        content: "❌ You need to be in a voice channel to play music"
+        content: "❌ You need to be in a voice channel to play audio"
       });
       return;
     }
@@ -26,8 +26,8 @@ export default async function handlePlay(interaction, client) {
       await handleQuery(interaction, client, query);
     }
   } catch (error) {
-    console.error("Error in handlePlay:", error);
-    await interaction.editReply("❌ An error occurred while trying to play music");
+    // console.error("Error in handlePlay:", error);
+    await interaction.editReply("❌ An error occurred while trying to play audio");
   }
 }
 
@@ -53,7 +53,7 @@ async function handleQuery(interaction, client, query) {
 
     await playNextTrack(interaction, client);
   } catch (error) {
-    console.error("Error fetching or playing audio:", error);
+    // console.error("Error fetching or playing audio:", error);
     await interaction.editReply("❌ Network error - could not fetch data");
   }
 }
@@ -78,7 +78,7 @@ async function handleResumePlayback(interaction, client) {
 
     await interaction.editReply({ embeds: [embed] });
   } catch (error) {
-    console.error("Error resuming playback:", error);
+    // console.error("Error resuming playback:", error);
     await interaction.editReply("❌ An error occurred while trying to resume playback.");
   }
 }

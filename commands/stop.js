@@ -8,7 +8,7 @@ export default async function handleStop(interaction, client) {
 
     if (!playlist || !playlist.player) {
       await interaction.editReply({
-        content: "⏹️ Player already stopped"
+        content: "Player already stopped"
       });
       return;
     }
@@ -18,10 +18,10 @@ export default async function handleStop(interaction, client) {
     client.playlists.delete(interaction.guild.id);
 
     await interaction.editReply({
-      content: "⏹️ Playback stopped and playlist cleared"
+      content: "Playback stopped and playlist cleared"
     });
   } catch (error) {
-    console.error("Error stopping playback:", error);
+    // console.error("Error stopping playback:", error);
     await interaction.editReply("❌ An error occurred while trying to stop playback");
   }
 }

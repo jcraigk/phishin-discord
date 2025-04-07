@@ -15,7 +15,7 @@ async function fetchFromAPI(endpoint) {
     }
     return response.json();
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     throw error;
   }
 }

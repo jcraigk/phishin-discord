@@ -86,7 +86,7 @@ export default async function handleShow(interaction) {
     await interaction.editReply({ embeds: [embed] });
 
   } catch (error) {
-    console.error("Error fetching show information:", error);
+    // console.error("Error fetching show information:", error);
     await interaction.editReply("❌ Network error - could not fetch data");
   }
 }

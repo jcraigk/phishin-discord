@@ -46,7 +46,7 @@ export default async function handleNextTrack(interaction, client) {
       });
     }
   } catch (error) {
-    console.error("Error skipping track:", error);
+    // console.error("Error skipping track:", error);
     await interaction.reply({
       content: "❌ Track skip failed",
       flags: MessageFlags.Ephemeral
