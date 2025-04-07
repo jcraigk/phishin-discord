@@ -5,13 +5,18 @@ import handlePause from "./pause.js";
 import handlePlay from "./play.js";
 import handleShow from "./show.js";
 import handleStop from "./stop.js";
+import handleNextTrack from "./next.js";
+import handlePreviousTrack from "./previous.js";
 
 const commandHandlers = {
   help: handleHelp,
   pause: handlePause,
   play: handlePlay,
   show: handleShow,
-  stop: handleStop
+  stop: handleStop,
+  next: handleNextTrack,
+  previous: handlePreviousTrack,
+  prev: handlePreviousTrack
 };
 
 export const data = new SlashCommandBuilder()
@@ -53,6 +58,16 @@ export const data = new SlashCommandBuilder()
     subcommand
       .setName("stop")
       .setDescription("Stop playback and clear the playlist")
+  )
+  .addSubcommand(subcommand =>
+    subcommand
+      .setName("next")
+      .setDescription("Skip to the next track in the playlist")
+  )
+  .addSubcommand(subcommand =>
+    subcommand
+      .setName("previous")
+      .setDescription("Go back to the previous track in the playlist")
   );
 
 export async function execute(interaction, client) {

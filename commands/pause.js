@@ -5,20 +5,25 @@ export default async function handlePause(interaction, client) {
 
   if (!currentShow || !currentShow.player) {
     await interaction.reply({
-      content: "There's nothing currently playing to pause.",
+      content: "⏹️ Playback is currently stopped",
       flags: MessageFlags.Ephemeral
     });
     return;
   }
 
   try {
+    // Pause the audio player
     currentShow.player.pause();
+
+    // Mark the playback as paused
     currentShow.isPaused = true;
+
+    // Update the stored state
     client.shows.set(interaction.guild.id, currentShow);
 
-    await interaction.reply("Playback paused. Use `/phishin play` to resume.");
+    await interaction.reply("⏸️ Playback paused. Use `/phishin play` to resume.");
   } catch (error) {
     console.error("Error pausing playback:", error);
-    await interaction.reply("An error occurred while trying to pause playback.");
+    await interaction.reply("❌ An error occurred while trying to pause playback.");
   }
 }

@@ -5,9 +5,15 @@ const BASE_URL = "https://phish.in/api/v2";
 async function fetchFromAPI(endpoint) {
   try {
     const response = await fetch(`${BASE_URL}${endpoint}`);
+
+    if (response.status === 404) {
+      return { notFound: true };
+    }
+
     if (!response.ok) {
       throw new Error(`Failed to fetch ${endpoint}: ${response.status} ${response.statusText}`);
     }
+
     return response.json();
   } catch (error) {
     console.error(error);

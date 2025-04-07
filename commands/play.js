@@ -1,6 +1,7 @@
 import { MessageFlags } from "discord.js";
-import { parseFlexibleDate, formatDate, isExactYear } from "../utils/dateUtils.js";
-import { fetchRandomShow, fetchShow } from "../services/phishinAPI.js";
+import { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } from "@discordjs/voice";
+import { fetchRandomShow } from "../services/phishinAPI.js";
+import { formatDate } from "../utils/dateUtils.js";
 
 export default async function handlePlay(interaction, client) {
   const query = interaction.options.getString("query");
@@ -17,59 +18,117 @@ export default async function handlePlay(interaction, client) {
   await interaction.deferReply();
 
   const currentShow = client.shows?.get(interaction.guild.id);
-  if (!query && currentShow && currentShow.isPaused) {
+
+  if (currentShow && currentShow.isPaused) {
+    // If there is a paused show, resume playback
     await handleResumePlayback(interaction, client);
-    return;
-  }
-
-  if (!query) {
-    await handleRandomShow(interaction, client);
-  } else if (isExactYear(query)) {
-    await handleYearShow(interaction, query, client);
+  } else if (!query || query.toLowerCase() === "random") {
+    // If there's no paused show, start a random show
+    await handleRandomShow(interaction, client, voiceChannel);
   } else {
-    const parsedDate = parseFlexibleDate(query);
-
-    if (parsedDate) {
-      const formattedDate = formatDate(parsedDate);
-      await handleDateShow(interaction, formattedDate, client);
-    } else {
-      await handleSearch(interaction, query, client);
-    }
+    await interaction.editReply("❌ Only 'random' or empty queries are supported right now.");
   }
 }
 
-async function handleRandomShow(interaction, client) {
-  await interaction.editReply("Playing a random show...");
-}
+async function handleRandomShow(interaction, client, voiceChannel) {
+  try {
+    const showData = await fetchRandomShow();
+    const tracks = showData.tracks;
 
-async function handleYearShow(interaction, year, client) {
-  await interaction.editReply(`Playing a random show from ${year}...`);
-}
+    if (!tracks || tracks.length === 0) {
+      await interaction.editReply("❌ No tracks found for this show.");
+      return;
+    }
 
-async function handleDateShow(interaction, date, client) {
-  await interaction.editReply(`Playing show from ${date}...`);
-}
+    const formattedDate = formatDate(showData.date);
+    const showLink = `https://phish.in/${showData.date}`;
 
-async function handleSearch(interaction, query, client) {
-  await interaction.editReply(`Searching for "${query}"...`);
+    // Send the random show selected message
+    await interaction.editReply({
+      content: `🎲 Random show selected: [${formattedDate}](${showLink})`,
+      flags: MessageFlags.Ephemeral
+    });
+
+    const connection = joinVoiceChannel({
+      channelId: voiceChannel.id,
+      guildId: interaction.guild.id,
+      adapterCreator: interaction.guild.voiceAdapterCreator
+    });
+
+    const player = createAudioPlayer();
+
+    connection.subscribe(player);
+
+    const playlist = [...tracks];
+    client.shows = client.shows || new Map();
+    client.shows.set(interaction.guild.id, { playlist, player, connection, currentIndex: 0, formattedDate, isPaused: false });
+
+    await playNextTrack(interaction, client);
+  } catch (error) {
+    console.error("Error fetching or playing show:", error);
+    await interaction.editReply("❌ Network error - could not fetch data.");
+  }
 }
 
 async function handleResumePlayback(interaction, client) {
-  const currentShow = client.shows?.get(interaction.guild.id);
+  const currentShow = client.shows.get(interaction.guild.id);
 
   if (!currentShow || !currentShow.player) {
-    await handleRandomShow(interaction, client);
+    await interaction.reply({
+      content: "❌ There's no show to resume.",
+      flags: MessageFlags.Ephemeral
+    });
     return;
   }
 
   try {
     currentShow.player.unpause();
     currentShow.isPaused = false;
-    client.shows.set(interaction.guild.id, currentShow);
 
-    await interaction.editReply("Resuming playback.");
+    // Fetch the current track's information
+    const track = currentShow.playlist[currentShow.currentIndex];
+    const trackLink = `https://phish.in/${track.show_date}/${track.slug}`;
+    const trackDisplay = `${track.title} - ${currentShow.formattedDate} - \`${trackLink}\``;
+
+    client.shows.set(interaction.guild.id, currentShow);  // Update state
+
+    await interaction.editReply(`▶️ Playback resumed: ${trackDisplay}`);
   } catch (error) {
     console.error("Error resuming playback:", error);
-    await interaction.editReply("❌ Network error - could not fetch data");
+    await interaction.editReply("❌ An error occurred while trying to resume playback.");
   }
+}
+
+async function playNextTrack(interaction, client) {
+  const currentShow = client.shows.get(interaction.guild.id);
+
+  if (!currentShow || currentShow.currentIndex >= currentShow.playlist.length) {
+    await interaction.editReply("Finished playing all tracks.");
+    currentShow.connection.destroy();
+    client.shows.delete(interaction.guild.id);
+    return;
+  }
+
+  const track = currentShow.playlist[currentShow.currentIndex];
+  const trackUrl = track.mp3_url;
+  const trackLink = `https://phish.in/${track.show_date}/${track.slug}`;
+
+  if (!trackUrl) {
+    currentShow.currentIndex++;
+    await playNextTrack(interaction, client);
+    return;
+  }
+
+  const resource = createAudioResource(trackUrl);
+  currentShow.player.play(resource);
+
+  currentShow.player.once(AudioPlayerStatus.Idle, () => {
+    currentShow.currentIndex++;
+    playNextTrack(interaction, client);
+  });
+
+  const formattedDate = currentShow.formattedDate;
+  const trackDisplay = `${track.title} - ${formattedDate} - \`${trackLink}\``;
+
+  await interaction.editReply(`▶️ Now playing: ${trackDisplay}`);
 }

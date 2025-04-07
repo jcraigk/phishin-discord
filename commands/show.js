@@ -9,10 +9,16 @@ export default async function handleShow(interaction) {
 
   try {
     let showData;
+    let isRandom = false;
 
     if (!dateInput) {
       const randomShowResponse = await fetchRandomShow();
+      if (randomShowResponse.notFound) {
+        await interaction.editReply("❌ Show not found");
+        return;
+      }
       showData = randomShowResponse;
+      isRandom = true;
     } else {
       const parsedDate = parseFlexibleDate(dateInput);
 
@@ -24,6 +30,12 @@ export default async function handleShow(interaction) {
       const formattedDate = formatDate(parsedDate);
 
       const showResponse = await fetchShow(formattedDate);
+
+      if (showResponse.notFound) {
+        await interaction.editReply("❌ Show not found.");
+        return;
+      }
+
       showData = showResponse;
     }
 
@@ -39,7 +51,7 @@ export default async function handleShow(interaction) {
       : `${minutes}m ${seconds}s`;
 
     let setlistDisplay = `**${showData.venue_name} - ${showData.venue.location}**\n`;
-    setlistDisplay += `[▶️](https://phish.in/${showData.date})   ${durationDisplay}\n`;
+    setlistDisplay += `${durationDisplay}\n`;
 
     let lastSetName = null;
 
@@ -59,15 +71,18 @@ export default async function handleShow(interaction) {
         lastSetName = currentSetName;
       }
 
-      setlistDisplay += `${track.title}\n`;
+      setlistDisplay += `[${track.title}](https://phish.in/${showData.date}/${track.slug})\n`;
     });
 
     // Fetch the smallest album art thumbnail
     const albumArtUrl = showData.cover_art_urls?.medium || null;
 
+    let embedTitle = `Phish - ${formatDate(showData.date)}`;
+    isRandom && (embedTitle = `🎲 ${embedTitle}`);
+
     // Create an embed with thumbnail
     const embed = new EmbedBuilder()
-      .setTitle(`Phish - ${formatDate(showData.date)}`)
+      .setTitle(embedTitle)
       .setDescription(setlistDisplay)
       .setColor("#1DB954")
       .setURL(`https://phish.in/${showData.date}`);
