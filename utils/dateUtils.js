@@ -16,15 +16,25 @@ export function parseFlexibleDate(dateStr) {
   }
 }
 
-// Format a Date object to YYYY-MM-DD
-export function formatDate(date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
 // Check if the query is just a year
 export function isExactYear(str) {
   return /^\d{4}$/.test(str);
+}
+
+// Format a date as "Dec 1, 1995"
+export function formatDate(date) {
+  if (!(date instanceof Date)) {
+    date = new Date(date); // Convert to Date object if it's a string
+  }
+
+  if (isNaN(date.getTime())) {
+    console.error("Invalid date provided to formatDate");
+    return null;
+  }
+
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  });
 }

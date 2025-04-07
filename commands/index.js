@@ -25,12 +25,12 @@ export const data = new SlashCommandBuilder()
   .addSubcommand(subcommand =>
     subcommand
       .setName("show")
-      .setDescription("Display setlist for a specific show")
+      .setDescription("Display setlist for a random show or specified date")
       .addStringOption(option =>
         option
           .setName("date")
           .setDescription("Show date in YYYY-MM-DD format (e.g., 1995-10-31)")
-          .setRequired(true)
+          .setRequired(false)
       )
   )
   .addSubcommand(subcommand =>

@@ -1,68 +1,85 @@
+import { EmbedBuilder } from "discord.js";
 import { parseFlexibleDate, formatDate } from "../utils/dateUtils.js";
-import { getRandomShow } from "../services/phishinAPI.js";
+import { fetchRandomShow, fetchShow } from "../services/phishinAPI.js";
 
 export default async function handleShow(interaction) {
   const dateInput = interaction.options.getString("date");
 
   await interaction.deferReply();
 
-  const parsedDate = parseFlexibleDate(dateInput);
-
-  if (!parsedDate) {
-    await interaction.editReply(`Could not recognize "${dateInput}" as a valid date. Please use YYYY-MM-DD format.`);
-    return;
-  }
-
-  const formattedDate = formatDate(parsedDate);
-
   try {
-    const show = await phishinAPI.getShowByDate(formattedDate);
-    const showData = show.data;
+    let showData;
 
-    let setlistDisplay = `**${showData.date}** - ${showData.venue_name}, ${showData.location}\n\n`;
+    if (!dateInput) {
+      const randomShowResponse = await fetchRandomShow();
+      showData = randomShowResponse;
+    } else {
+      const parsedDate = parseFlexibleDate(dateInput);
 
-    const setMap = {};
-
-    showData.tracks.forEach(track => {
-      if (!setMap[track.set]) {
-        setMap[track.set] = [];
-      }
-      setMap[track.set].push(track);
-    });
-
-    Object.keys(setMap).sort().forEach(setName => {
-      const tracks = setMap[setName];
-      let formattedSetName = setName;
-
-      if (setName.toLowerCase() === "e") {
-        formattedSetName = "Encore";
-      } else if (setName.match(/^set\s*\d+$/i)) {
-        formattedSetName = "Set " + setName.replace(/^set\s*(\d+)$/i, "$1");
+      if (!parsedDate) {
+        await interaction.editReply(`❌ "${dateInput}" isn't a valid date. Please use YYYY-MM-DD format.`);
+        return;
       }
 
-      setlistDisplay += `**${formattedSetName}:**\n`;
+      const formattedDate = formatDate(parsedDate);
 
-      tracks.forEach((track, index) => {
-        let trackDisplay = `${index + 1}. ${track.title}`;
+      const showResponse = await fetchShow(formattedDate);
+      showData = showResponse;
+    }
 
-        if (track.duration) {
-          const minutes = Math.floor(track.duration / 60);
-          const seconds = track.duration % 60;
-          trackDisplay += ` (${minutes}:${seconds.toString().padStart(2, "0")})`;
+    // Calculate the total duration in hours, minutes, and seconds
+    const totalSeconds = Math.floor(showData.duration / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    // Format the duration
+    const durationDisplay = hours > 0
+      ? `${hours}h ${minutes}m`
+      : `${minutes}m ${seconds}s`;
+
+    let setlistDisplay = `**${showData.venue_name} - ${showData.venue.location}**\n`;
+    setlistDisplay += `[▶️](https://phish.in/${showData.date})   ${durationDisplay}\n`;
+
+    let lastSetName = null;
+
+    showData.tracks.forEach((track) => {
+      const currentSetName = track.set_name || "Unknown Set";
+
+      if (currentSetName !== lastSetName) {
+        let formattedSetName = currentSetName;
+
+        if (currentSetName.toLowerCase() === "e") {
+          formattedSetName = "Encore";
+        } else if (currentSetName.match(/^set\s*\d+$/i)) {
+          formattedSetName = "Set " + currentSetName.replace(/^set\s*(\d+)$/i, "$1");
         }
 
-        setlistDisplay += `${trackDisplay}\n`;
-      });
+        setlistDisplay += `\n**${formattedSetName}:**\n`;
+        lastSetName = currentSetName;
+      }
 
-      setlistDisplay += "\n";
+      setlistDisplay += `${track.title}\n`;
     });
 
-    setlistDisplay += `\nListen: https://phish.in/${formattedDate}`;
+    // Fetch the smallest album art thumbnail
+    const albumArtUrl = showData.cover_art_urls?.medium || null;
 
-    await interaction.editReply(setlistDisplay);
+    // Create an embed with thumbnail
+    const embed = new EmbedBuilder()
+      .setTitle(`Phish - ${formatDate(showData.date)}`)
+      .setDescription(setlistDisplay)
+      .setColor("#1DB954")
+      .setURL(`https://phish.in/${showData.date}`);
+
+    if (albumArtUrl) {
+      embed.setThumbnail(albumArtUrl);
+    }
+
+    await interaction.editReply({ embeds: [embed] });
 
   } catch (error) {
     console.error("Error fetching show information:", error);
-    await interaction.editReply("An error occurred while fetching the show information.");
+    await interaction.editReply("❌ Network error - could not fetch data");
   }
 }

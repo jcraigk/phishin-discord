@@ -1,6 +1,6 @@
 import { MessageFlags } from "discord.js";
 import { parseFlexibleDate, formatDate, isExactYear } from "../utils/dateUtils.js";
-import { getRandomShow } from "../services/phishinAPI.js";
+import { fetchRandomShow, fetchShow } from "../services/phishinAPI.js";
 
 export default async function handlePlay(interaction, client) {
   const query = interaction.options.getString("query");
@@ -8,7 +8,7 @@ export default async function handlePlay(interaction, client) {
   const voiceChannel = interaction.member.voice.channel;
   if (!voiceChannel) {
     await interaction.reply({
-      content: "You need to be in a voice channel to play music!",
+      content: "❌ You need to be in a voice channel to play music",
       flags: MessageFlags.Ephemeral
     });
     return;
@@ -70,6 +70,6 @@ async function handleResumePlayback(interaction, client) {
     await interaction.editReply("Resuming playback.");
   } catch (error) {
     console.error("Error resuming playback:", error);
-    await interaction.editReply("An error occurred while trying to resume playback.");
+    await interaction.editReply("❌ Network error - could not fetch data");
   }
 }
