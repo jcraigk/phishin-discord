@@ -12,7 +12,7 @@ export default async function handlePlay(interaction, client) {
 
     if (!voiceChannel) {
       await interaction.editReply({
-        content: "❌ You need to be in a voice channel to play audio"
+        content: "🔊 You need to be in a voice channel to play audio"
       });
       return;
     }
