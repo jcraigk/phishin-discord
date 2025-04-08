@@ -6,9 +6,41 @@ import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v10";
 import { data, execute } from "./commands/index.js";
 import { generateDependencyReport } from "@discordjs/voice";
-import "./config/prism.config.js";
+import { execSync } from 'node:child_process';
+import prism from "prism-media";
 
-// Get guild limit from environment variable, default to 1 if not set
+// Configure prism to use system ffmpeg
+const ffmpegPath = process.env.IN_DOCKER ? "/usr/bin/ffmpeg" : (process.env.FFMPEG_PATH || "/usr/bin/ffmpeg");
+console.log("Using FFmpeg path:", ffmpegPath);
+
+const getFFmpegInfo = () => {
+  try {
+    const output = execSync(`${ffmpegPath} -version`).toString();
+    const versionLine = output.split("\n")[0];
+    const version = versionLine.split(" ").slice(2, 3).join(" ");
+
+    return {
+      command: ffmpegPath,
+      output,
+      version
+    };
+  } catch (error) {
+    console.error(`Error getting FFmpeg info: ${error.message}`);
+    console.error(`FFmpeg path: ${ffmpegPath}`);
+    console.error(`Please check if FFmpeg is installed and the path is correct.`);
+
+    // Return a fallback object
+    return {
+      command: ffmpegPath,
+      output: "FFmpeg info not available",
+      version: "unknown"
+    };
+  }
+};
+
+prism.FFmpeg.getInfo = () => getFFmpegInfo();
+
+// Default to guild limit of 1 if GUILD_LIMIT is not set
 const guildLimit = process.env.GUILD_LIMIT ? parseInt(process.env.GUILD_LIMIT, 10) : 1;
 
 const client = new Client({
@@ -26,9 +58,9 @@ client.once("ready", async () => {
 
   console.log(`Bot is online as ${client.user.tag}`);
   console.log(`Guild limit: ${guildLimit}`);
-  console.log(`Connected guilds: ${client.guilds.cache.size}`);
 
   // List up to 20 connected guilds
+  console.log(`Connected guilds: ${client.guilds.cache.size}`);
   const guilds = [...client.guilds.cache.values()];
   const guildsToShow = Math.min(guilds.length, 20);
   for (let i = 0; i < guildsToShow; i++) {

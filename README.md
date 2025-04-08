@@ -44,6 +44,7 @@ The bot implements the `/phishin` slash command and understands the following su
 2. Run `make install`
 3. Create a `.env` file in the root directory
 4. Add your bot token to the `.env` file as `DISCORD_TOKEN`
+5. If FFmpeg is not automatically detected, run `which ffmpeg` in your terminal and add the path to your `.env` file as `FFMPEG_PATH=/path/to/ffmpeg`
 
 
 ### For Local Development
