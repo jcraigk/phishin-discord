@@ -5,77 +5,63 @@ import { getOrCreatePlaylist } from "../utils/playlistUtils.js";
 import { createNowPlayingEmbed } from "../utils/embedUtils.js";
 
 export default async function handlePlay(interaction, client) {
-  try {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-    const query = interaction.options.getString("query");
-    const voiceChannel = interaction.member.voice.channel;
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+  const query = interaction.options.getString("query");
+  const voiceChannel = interaction.member.voice.channel;
 
-    if (!voiceChannel) {
-      await interaction.editReply("🔊 You need to be in a voice channel to play audio");
-      return;
-    }
+  if (!voiceChannel) {
+    await interaction.editReply("🔊 You need to be in a voice channel to play audio");
+    return;
+  }
 
-    const playlist = getOrCreatePlaylist(client, interaction.guild.id, voiceChannel);
+  const playlist = getOrCreatePlaylist(client, interaction.guild.id, voiceChannel);
 
-    // Check if the bot is already actively playing
-    if (playlist.isActive && !playlist.isPaused) {
-      const track = playlist.tracks[playlist.currentIndex];
-      const embed = createNowPlayingEmbed(track, playlist, "Now Playing");
-      await interaction.editReply({
-        content: "Already playing. Use `/phishin stop` to reset playlist.",
-        embeds: [embed],
-      });
-    } else if (playlist.isPaused) { // If paused, resume
-      await handleResumePlayback(interaction, client);
-    } else { // Otherwise, handle the new query
-      await handleQuery(interaction, client, query);
-    }
-  } catch (error) {
-    console.error("Error in handlePlay:", error);
-    await sendErrorResponse(interaction, "❌ An error occurred while trying to play audio");
+  // Check if the bot is already actively playing
+  if (playlist.isActive && !playlist.isPaused) {
+    const track = playlist.tracks[playlist.currentIndex];
+    const embed = createNowPlayingEmbed(track, playlist, "Now Playing");
+    await interaction.editReply({
+      content: "Already playing. Use `/phishin stop` to reset the playlist.",
+      embeds: [embed],
+    });
+  } else if (playlist.isPaused) { // If paused, resume
+    await handleResumePlayback(interaction, client);
+  } else { // Otherwise, handle the new query
+    await handleQuery(interaction, client, query);
   }
 }
 
 async function handleQuery(interaction, client, query) {
-  try {
-    let tracks = [];
-    if (!query || query.toLowerCase() === "random") {
-      const showData = await fetchRandomShow();
-      tracks = showData.tracks;
-    } else {
-      tracks = await fetchTracksByQuery(query);
-    }
-
-    const playlist = client.playlists.get(interaction.guild.id);
-
-    // Clear the playlist before adding new tracks
-    playlist.tracks = [];
-    playlist.currentIndex = 0;
-
-    // Add the new tracks
-    playlist.tracks.push(...tracks);
-
-    await playNextTrack(interaction, client);
-  } catch (error) {
-    // console.error("Error fetching or playing audio:", error);
-    await interaction.editReply("❌ Network error - could not fetch data");
+  let tracks = [];
+  if (!query || query.toLowerCase() === "random") {
+    const showData = await fetchRandomShow();
+    tracks = showData.tracks;
+  } else {
+    tracks = await fetchTracksByQuery(query);
   }
+
+  const playlist = client.playlists.get(interaction.guild.id);
+
+  // Clear the playlist before adding new tracks
+  playlist.tracks = [];
+  playlist.currentIndex = 0;
+
+  // Add the new tracks
+  playlist.tracks.push(...tracks);
+
+  await playNextTrack(interaction, client);
 }
 
 async function handleResumePlayback(interaction, client) {
   const playlist = client.playlists.get(interaction.guild.id);
-  try {
-    playlist.player.unpause();
-    playlist.isActive = true;
-    playlist.isPaused = false;
 
-    const track = playlist.tracks[playlist.currentIndex];
-    const embed = createNowPlayingEmbed(track, playlist, "Playback resumed");
-    await interaction.editReply({ embeds: [embed] });
-  } catch (error) {
-    // console.error("Error resuming playback:", error);
-    await interaction.editReply("❌ An error occurred while trying to resume playback");
-  }
+  playlist.player.unpause();
+  playlist.isActive = true;
+  playlist.isPaused = false;
+
+  const track = playlist.tracks[playlist.currentIndex];
+  const embed = createNowPlayingEmbed(track, playlist, "Playback resumed");
+  await interaction.editReply({ embeds: [embed] });
 }
 
 async function playNextTrack(interaction, client) {

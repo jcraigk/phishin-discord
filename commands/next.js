@@ -13,35 +13,27 @@ export default async function handleNextTrack(interaction, client) {
     return;
   }
 
-  try {
-    playlist.currentIndex++;
+  playlist.currentIndex++;
 
-    if (playlist.currentIndex < playlist.tracks.length) {
-      const track = playlist.tracks[playlist.currentIndex];
-      const trackUrl = track.mp3_url;
+  if (playlist.currentIndex < playlist.tracks.length) {
+    const track = playlist.tracks[playlist.currentIndex];
+    const trackUrl = track.mp3_url;
 
-      if (trackUrl) {
-        const resource = createAudioResource(trackUrl);
-        playlist.player.play(resource);
+    if (trackUrl) {
+      const resource = createAudioResource(trackUrl);
+      playlist.player.play(resource);
 
-        const embed = createNowPlayingEmbed(track, playlist, "Playing Next Track");
-        await interaction.reply({
-          embeds: [embed],
-          flags: MessageFlags.Ephemeral
-        });
-      } else {
-        await handleNextTrack(interaction, client);
-      }
-    } else {
+      const embed = createNowPlayingEmbed(track, playlist, "Playing Next Track");
       await interaction.reply({
-        content: "❌ You've reached the end of the playlist",
+        embeds: [embed],
         flags: MessageFlags.Ephemeral
       });
+    } else {
+      await handleNextTrack(interaction, client);
     }
-  } catch (error) {
-    // console.error("Error skipping track:", error);
+  } else {
     await interaction.reply({
-      content: "❌ Track skip failed",
+      content: "❌ You've reached the end of the playlist",
       flags: MessageFlags.Ephemeral
     });
   }

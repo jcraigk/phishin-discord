@@ -54,7 +54,7 @@ export default async function handleRemove(interaction, client) {
 
   const embed = new EmbedBuilder()
     .setTitle("Track Removed")
-    .setDescription(`Removed [${removedTrack.title}](https://phish.in/${removedTrack.show_date}/${removedTrack.slug}) from the playlist`)
+    .setDescription(`Removed [${removedTrack.title}](${trackLink}) - [${formatDate(removedTrack.show_date)}](${showLink}) from the playlist`)
     .setColor("#2f3335");
 
   await interaction.reply({

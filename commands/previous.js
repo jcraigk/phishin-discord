@@ -13,35 +13,27 @@ export default async function handlePreviousTrack(interaction, client) {
     return;
   }
 
-  try {
-    playlist.currentIndex--;
+  playlist.currentIndex--;
 
-    if (playlist.currentIndex >= 0) {
-      const track = playlist.tracks[playlist.currentIndex];
-      const trackUrl = track.mp3_url;
+  if (playlist.currentIndex >= 0) {
+    const track = playlist.tracks[playlist.currentIndex];
+    const trackUrl = track.mp3_url;
 
-      if (trackUrl) {
-        const resource = createAudioResource(trackUrl);
-        playlist.player.play(resource);
+    if (trackUrl) {
+      const resource = createAudioResource(trackUrl);
+      playlist.player.play(resource);
 
-        const embed = createNowPlayingEmbed(track, playlist, "Playing Previous Track");
-        await interaction.reply({
-          embeds: [embed],
-          flags: MessageFlags.Ephemeral
-        });
-      } else {
-        await handlePreviousTrack(interaction, client);
-      }
-    } else {
+      const embed = createNowPlayingEmbed(track, playlist, "Playing Previous Track");
       await interaction.reply({
-        content: "❌ You've reached the beginning of the playlist",
+        embeds: [embed],
         flags: MessageFlags.Ephemeral
       });
+    } else {
+      await handlePreviousTrack(interaction, client);
     }
-  } catch (error) {
-    // console.error("Error skipping to previous track:", error);
+  } else {
     await interaction.reply({
-      content: "❌ Unable to play previous track",
+      content: "❌ You've reached the beginning of the playlist",
       flags: MessageFlags.Ephemeral
     });
   }
