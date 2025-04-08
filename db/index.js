@@ -46,11 +46,11 @@ const statements = {
 
 const dbFunctions = {
   addGuild: (guildId, guildName, memberCount) => {
-    return statements.addGuild.run(guildId, guildName, new Date(), memberCount);
+    return statements.addGuild.run(guildId, guildName, new Date().toISOString(), memberCount);
   },
 
   removeGuild: (guildId) => {
-    return statements.updateGuild.run(new Date(), guildId);
+    return statements.updateGuild.run(new Date().toISOString(), guildId);
   },
 
   getActiveGuildCount: () => {

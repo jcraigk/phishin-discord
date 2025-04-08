@@ -27,9 +27,9 @@ export default async function handleNextTrack(interaction, client) {
         playlist.player.play(resource);
 
         const embed = new EmbedBuilder()
-          .setTitle(`Playing next track`)
-          .setDescription(`[${track.title}](${trackLink}) - [${formatDate(track.show_date)}](${showLink})`)
-          .setColor("#1DB954")
+          .setTitle("Next Track")
+          .setDescription(`Now playing: [${track.title}](https://phish.in/${track.show_date}/${track.slug})`)
+          .setColor("#2f3335")
           .setFooter({ text: `Track ${playlist.currentIndex + 1} of ${playlist.tracks.length} in 🔊 ${playlist.voiceChannelName}` });
 
         await interaction.reply({

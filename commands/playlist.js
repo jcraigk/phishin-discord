@@ -69,7 +69,7 @@ export default async function displayPlaylist(interaction, client) {
   const embed = new EmbedBuilder()
     .setTitle(`Current Playlist`)
     .setDescription(trackList.join("\n"))
-    .setColor("#1DB954")
+    .setColor("#2f3335")
     .setFooter({ text: `Playing track ${currentIndex + 1} of ${totalTracks} (${formatDuration(totalDurationMs)} total) in 🔊 ${playlist.voiceChannelName}` });
 
   await interaction.followUp({ embeds: [embed], flags: MessageFlags.Ephemeral });

@@ -76,7 +76,7 @@ export default async function handleShow(interaction) {
     const embed = new EmbedBuilder()
       .setTitle(embedTitle)
       .setDescription(setlistDisplay)
-      .setColor("#1DB954")
+      .setColor("#2f3335")
       .setURL(`https://phish.in/${showData.date}`);
 
     if (albumArtUrl) {

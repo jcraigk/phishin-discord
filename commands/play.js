@@ -73,7 +73,7 @@ async function handleResumePlayback(interaction, client) {
     const embed = new EmbedBuilder()
       .setTitle(`Playback resumed`)
       .setDescription(`[${track.title}](${trackLink}) - [${formatDate(track.show_date)}](${showLink})`)
-      .setColor("#1DB954")
+      .setColor("#2f3335")
       .setFooter({ text: `Track ${playlist.currentIndex + 1} of ${playlist.tracks.length} in 🔊 ${playlist.voiceChannelName}` });
 
     await interaction.editReply({ embeds: [embed] });
@@ -115,9 +115,9 @@ async function playNextTrack(interaction, client) {
   const showLink = `https://phish.in/${track.show_date}`;
 
   const embed = new EmbedBuilder()
-    .setTitle(`Now playing`)
-    .setDescription(`[${track.title}](${trackLink}) - [${formatDate(track.show_date)}](${showLink})`)
-    .setColor("#1DB954")
+    .setTitle("Now Playing")
+    .setDescription(`[${track.title}](https://phish.in/${track.show_date}/${track.slug})`)
+    .setColor("#2f3335")
     .setFooter({ text: `Track ${playlist.currentIndex + 1} of ${playlist.tracks.length} in 🔊 ${playlist.voiceChannelName}` });
 
   await interaction.editReply({ embeds: [embed] });
