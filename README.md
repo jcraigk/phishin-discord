@@ -66,13 +66,16 @@ You can also run the bot in a Docker container:
 
 This project is configured to run with [Dokku](https://dokku.com/). To deploy:
 
-1. Create a new app on your Dokku server: `dokku apps:create phishin-discord`
+#### On your Dokku server:
+1. Create a new app: `dokku apps:create phishin-discord`
 2. Set your Discord token: `dokku config:set phishin-discord DISCORD_TOKEN=your_token_here`
-3. Set the guild limit (integer) if you want multiple guilds to join: `dokku config:set phishin-discord GUILD_LIMIT=your_number_here`
+3. Set the guild limit (integer) if you want multiple guilds to use your bot: `dokku config:set phishin-discord GUILD_LIMIT=your_number_here`
 4. Set the worker scale to 1: `dokku ps:scale phishin-discord worker=1`
-5. Deploy by pushing to your Dokku remote: `git push dokku main`
+5. Display health checks: `dokku checks:disable phishin-discord worker`
 
-Dokku will automatically detect and use the Dockerfile for deployment.
+#### On your local machine:
+6. Add your Dokku server as a remote: `git remote add dokku dokku@your-server:phishin-discord`
+7. Deploy by pushing to your Dokku remote: `git push dokku main`
 
 
 ### Deploying with PM2
