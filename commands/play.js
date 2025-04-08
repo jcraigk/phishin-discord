@@ -7,7 +7,6 @@ import { getOrCreatePlaylist } from "../utils/playlistUtils.js";
 export default async function handlePlay(interaction, client) {
   try {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
     const query = interaction.options.getString("query");
     const voiceChannel = interaction.member.voice.channel;
 
@@ -34,7 +33,6 @@ export default async function handlePlay(interaction, client) {
 async function handleQuery(interaction, client, query) {
   try {
     let tracks = [];
-
     if (!query || query.toLowerCase() === "random") {
       const showData = await fetchRandomShow();
       tracks = showData.tracks;
@@ -60,7 +58,6 @@ async function handleQuery(interaction, client, query) {
 
 async function handleResumePlayback(interaction, client) {
   const playlist = client.playlists.get(interaction.guild.id);
-
   try {
     playlist.player.unpause();
     playlist.isActive = true;
@@ -109,6 +106,7 @@ async function playNextTrack(interaction, client) {
     playlist.currentIndex++;
     playNextTrack(interaction, client);
   });
+
   playlist.isActive = true;
 
   const trackLink = `https://phish.in/${track.show_date}/${track.slug}`;
@@ -116,7 +114,7 @@ async function playNextTrack(interaction, client) {
 
   const embed = new EmbedBuilder()
     .setTitle("Now Playing")
-    .setDescription(`[${track.title}](https://phish.in/${track.show_date}/${track.slug})`)
+    .setDescription(`[${track.title}](${trackLink}) - [${formatDate(track.show_date)}](${showLink})`)
     .setColor("#2f3335")
     .setFooter({ text: `Track ${playlist.currentIndex + 1} of ${playlist.tracks.length} in 🔊 ${playlist.voiceChannelName}` });
 

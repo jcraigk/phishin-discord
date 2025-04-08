@@ -4,7 +4,13 @@ export function getOrCreatePlaylist(client, guildId, voiceChannel = null) {
   let playlist = client.playlists?.get(guildId);
 
   if (!playlist) {
-    const player = voiceChannel ? createAudioPlayer() : null;
+    const player = voiceChannel ? createAudioPlayer({
+      behaviors: {
+        maxMissedFrames: 5,
+        noSubscriber: 'pause'
+      }
+    }) : null;
+
     const connection = voiceChannel ? joinVoiceChannel({
       channelId: voiceChannel.id,
       guildId,
@@ -31,7 +37,13 @@ export function getOrCreatePlaylist(client, guildId, voiceChannel = null) {
 
   // Ensure player and connection are set if a voiceChannel is provided later (from /phishin play)
   if (voiceChannel && (!playlist.player || !playlist.connection)) {
-    const player = createAudioPlayer();
+    const player = createAudioPlayer({
+      behaviors: {
+        maxMissedFrames: 5,
+        noSubscriber: 'pause'
+      }
+    });
+
     const connection = joinVoiceChannel({
       channelId: voiceChannel.id,
       guildId,

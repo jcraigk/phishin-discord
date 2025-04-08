@@ -4,28 +4,67 @@ import * as chrono from "chrono-node";
 const BASE_URL = "https://phish.in/api/v2";
 
 async function fetchFromAPI(endpoint) {
+  console.log(`[phishinAPI] BASE_URL: ${BASE_URL}`);
+  console.log(`[phishinAPI] endpoint: ${endpoint}`);
+
+  // Ensure endpoint starts with a forward slash
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  // Remove any trailing slash from BASE_URL
+  const normalizedBaseUrl = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL;
+
+  const url = `${normalizedBaseUrl}${normalizedEndpoint}`;
+  console.log(`[phishinAPI] Constructed URL: ${url}`);
+
   try {
-    const url = `${BASE_URL}${endpoint}`;
-    const response = await fetch(url);
-    if (response.status === 404) {
-      return { notFound: true };
-    }
+    console.log(`[phishinAPI] Attempting to fetch from: ${url}`);
+    const response = await fetch(url, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    console.log(`[phishinAPI] Response status: ${response.status}`);
+    console.log(`[phishinAPI] Response headers:`, response.headers);
+
     if (!response.ok) {
-      throw new Error(`Failed to fetch ${endpoint}: ${response.status} ${response.statusText}`);
+      const errorText = await response.text();
+      console.error(`[phishinAPI] Error response: ${errorText}`);
+      throw new Error(`API request failed with status ${response.status}: ${errorText}`);
     }
-    return response.json();
+
+    const data = await response.json();
+    console.log(`[phishinAPI] Response data (first 100 chars): ${JSON.stringify(data).substring(0, 100)}...`);
+    return data;
   } catch (error) {
-    // console.error(error);
-    throw error;
+    console.error(`[phishinAPI] Network error details:`, {
+      message: error.message,
+      stack: error.stack,
+      cause: error.cause,
+      url: url
+    });
+    throw new Error(`Network error - could not fetch data: ${error.message}`);
   }
 }
 
 export async function fetchRandomShow() {
-  return fetchFromAPI("/shows/random");
+  console.log('[phishinAPI] Fetching random show...');
+  const data = await fetchFromAPI("/shows/random");
+  console.log('[phishinAPI] Random show data received:', {
+    id: data.id,
+    date: data.date,
+    tracks: data.tracks ? data.tracks.length : 0
+  });
+  return data;
 }
 
 export async function fetchShow(date) {
-  return fetchFromAPI(`/shows/${date}`);
+  console.log(`[phishinAPI] Fetching show for date: ${date}`);
+  const data = await fetchFromAPI(`/shows/${date}`);
+  console.log('[phishinAPI] Show data received:', {
+    id: data.id,
+    date: data.date,
+    tracks: data.tracks ? data.tracks.length : 0
+  });
+  return data;
 }
 
 export async function fetchRandomShowByYear(year) {
