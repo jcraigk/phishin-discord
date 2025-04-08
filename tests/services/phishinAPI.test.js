@@ -39,27 +39,35 @@ describe("phishinAPI", () => {
 
       const result = await phishinAPI.fetchShow("2023-12-31");
       expect(result).toEqual(mockData);
-      expect(fetch).toHaveBeenCalledWith("https://phish.in/api/v2/shows/2023-12-31");
+      expect(fetch).toHaveBeenCalledWith(
+        "https://phish.in/api/v2/shows/2023-12-31",
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'Accept': 'application/json'
+          })
+        })
+      );
     });
 
     it("handles 404 responses", async () => {
       fetch.mockImplementationOnce(async () => ({
         ok: false,
-        status: 404
+        status: 404,
+        text: async () => "Not Found"
       }));
 
-      const result = await phishinAPI.fetchShow("2023-12-31");
-      expect(result).toEqual({ notFound: true });
+      await expect(phishinAPI.fetchShow("2023-12-31")).rejects.toThrow("API request failed with status 404: Not Found");
     });
 
     it("handles API errors", async () => {
       fetch.mockImplementationOnce(async () => ({
         ok: false,
         status: 500,
-        statusText: "Internal Server Error"
+        statusText: "Internal Server Error",
+        text: async () => "Internal Server Error"
       }));
 
-      await expect(phishinAPI.fetchShow("2023-12-31")).rejects.toThrow("Failed to fetch /shows/2023-12-31: 500 Internal Server Error");
+      await expect(phishinAPI.fetchShow("2023-12-31")).rejects.toThrow("API request failed with status 500: Internal Server Error");
     });
   });
 
@@ -74,7 +82,14 @@ describe("phishinAPI", () => {
 
       const result = await phishinAPI.fetchRandomShow();
       expect(result).toEqual(mockShow);
-      expect(fetch).toHaveBeenCalledWith("https://phish.in/api/v2/shows/random");
+      expect(fetch).toHaveBeenCalledWith(
+        "https://phish.in/api/v2/shows/random",
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'Accept': 'application/json'
+          })
+        })
+      );
     });
   });
 
@@ -89,7 +104,14 @@ describe("phishinAPI", () => {
 
       const result = await phishinAPI.fetchShow("2023-12-31");
       expect(result).toEqual(mockShow);
-      expect(fetch).toHaveBeenCalledWith("https://phish.in/api/v2/shows/2023-12-31");
+      expect(fetch).toHaveBeenCalledWith(
+        "https://phish.in/api/v2/shows/2023-12-31",
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'Accept': 'application/json'
+          })
+        })
+      );
     });
   });
 
@@ -114,18 +136,32 @@ describe("phishinAPI", () => {
 
       const result = await phishinAPI.fetchRandomShowByYear("2023");
       expect(result).toEqual(mockShow);
-      expect(fetch).toHaveBeenCalledWith("https://phish.in/api/v2/shows?year=2023&per_page=1000");
-      expect(fetch).toHaveBeenCalledWith("https://phish.in/api/v2/shows/2023-12-31");
+      expect(fetch).toHaveBeenCalledWith(
+        "https://phish.in/api/v2/shows?year=2023&per_page=1000",
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'Accept': 'application/json'
+          })
+        })
+      );
+      expect(fetch).toHaveBeenCalledWith(
+        "https://phish.in/api/v2/shows/2023-12-31",
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'Accept': 'application/json'
+          })
+        })
+      );
     });
 
     it("returns null if no shows found for the year", async () => {
       fetch.mockImplementationOnce(async () => ({
         ok: false,
-        status: 404
+        status: 404,
+        text: async () => "Not Found"
       }));
 
-      const result = await phishinAPI.fetchRandomShowByYear("2023");
-      expect(result).toBeNull();
+      await expect(phishinAPI.fetchRandomShowByYear("2023")).rejects.toThrow("API request failed with status 404: Not Found");
     });
   });
 

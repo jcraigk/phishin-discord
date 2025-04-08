@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import handleNextTrack from "../../commands/next.js";
 import { EmbedBuilder, MessageFlags } from "discord.js";
 import { createAudioResource } from "@discordjs/voice";
 
@@ -20,6 +19,23 @@ vi.mock("discord.js", () => ({
 vi.mock("@discordjs/voice", () => ({
   createAudioResource: vi.fn()
 }));
+
+// Mock embedUtils
+vi.mock("../../utils/embedUtils.js", () => {
+  return {
+    createNowPlayingEmbed: vi.fn().mockReturnValue({
+      data: {
+        title: "Mock Embed",
+        description: "Mock Description",
+        color: "#2f3335",
+        footer: { text: "Mock Footer" }
+      }
+    })
+  };
+});
+
+// Import the handler after mocks are defined
+import handleNextTrack from "../../commands/next.js";
 
 describe("next command", () => {
   let mockInteraction;
