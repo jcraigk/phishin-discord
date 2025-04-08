@@ -98,7 +98,6 @@ client.once("ready", async () => {
     console.error(error);
   }
 });
-dokku checks:disable phishin-discord worker
 
 // Handle new guild joins
 client.on("guildCreate", async (guild) => {
