@@ -3,6 +3,7 @@ import { AudioPlayerStatus, createAudioResource } from "@discordjs/voice";
 import { fetchRandomShow, fetchTracksByQuery } from "../services/phishinAPI.js";
 import { formatDate } from "../utils/timeUtils.js";
 import { getOrCreatePlaylist } from "../utils/playlistUtils.js";
+import { createNowPlayingEmbed } from "../utils/embedUtils.js";
 
 export default async function handlePlay(interaction, client) {
   try {
@@ -64,15 +65,7 @@ async function handleResumePlayback(interaction, client) {
     playlist.isPaused = false;
 
     const track = playlist.tracks[playlist.currentIndex];
-    const trackLink = `https://phish.in/${track.show_date}/${track.slug}`;
-    const showLink = `https://phish.in/${track.show_date}`;
-
-    const embed = new EmbedBuilder()
-      .setTitle(`Playback resumed`)
-      .setDescription(`[${track.title}](${trackLink}) - [${formatDate(track.show_date)}](${showLink})`)
-      .setColor("#2f3335")
-      .setFooter({ text: `Track ${playlist.currentIndex + 1} of ${playlist.tracks.length} in 🔊 ${playlist.voiceChannelName}` });
-
+    const embed = createNowPlayingEmbed(track, playlist, "Playback resumed");
     await interaction.editReply({ embeds: [embed] });
   } catch (error) {
     // console.error("Error resuming playback:", error);
@@ -109,14 +102,6 @@ async function playNextTrack(interaction, client) {
 
   playlist.isActive = true;
 
-  const trackLink = `https://phish.in/${track.show_date}/${track.slug}`;
-  const showLink = `https://phish.in/${track.show_date}`;
-
-  const embed = new EmbedBuilder()
-    .setTitle("Now Playing")
-    .setDescription(`[${track.title}](${trackLink}) - [${formatDate(track.show_date)}](${showLink})`)
-    .setColor("#2f3335")
-    .setFooter({ text: `Track ${playlist.currentIndex + 1} of ${playlist.tracks.length} in 🔊 ${playlist.voiceChannelName}` });
-
+  const embed = createNowPlayingEmbed(track, playlist, "Now Playing");
   await interaction.editReply({ embeds: [embed] });
 }
