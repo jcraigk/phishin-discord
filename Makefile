@@ -1,5 +1,8 @@
 .PHONY: dev install
 
+NAME = phishin-discord
+TAG = latest
+
 dev:
 	npm run dev
 
@@ -9,31 +12,26 @@ install:
 spec:
 	npx vitest --reporter=dot
 
-# Docker image name and tag
-IMAGE_NAME = phishin-discord
-IMAGE_TAG = latest
-CONTAINER_NAME = phishin-discord-container
-
 build:
-	docker build -t $(IMAGE_NAME):$(IMAGE_TAG) .
+	docker build -t $(NAME):$(TAG) .
 
 up: down
-	docker run --name $(CONTAINER_NAME) \
+	docker run --name $(NAME) \
 		--network host \
 		--env-file .env \
-		$(IMAGE_NAME):$(IMAGE_TAG)
+		$(NAME):$(TAG)
 
 down:
-	docker stop $(CONTAINER_NAME) || true
-	docker rm $(CONTAINER_NAME) || true
+	docker stop $(NAME) || true
+	docker rm $(NAME) || true
 
 restart: down build up
 
 logs:
-	docker logs -f $(CONTAINER_NAME)
+	docker logs -f $(NAME)
 
 shell:
-	docker exec -it $(CONTAINER_NAME) /bin/bash
+	docker exec -it $(NAME) /bin/bash
 
 clean: down
-	docker rmi $(IMAGE_NAME):$(IMAGE_TAG) || true
+	docker rmi $(NAME):$(TAG) || true

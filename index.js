@@ -6,18 +6,7 @@ import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v10";
 import { data, execute } from "./commands/index.js";
 import { generateDependencyReport } from "@discordjs/voice";
-import { execSync } from 'node:child_process';
-import prism from "prism-media";
-
-prism.FFmpeg.getInfo = () => ({
-  command: "/usr/bin/ffmpeg",
-  output: execSync("/usr/bin/ffmpeg -version").toString(),
-  version: "patched"
-});
-
-// Ensure FFMPEG_PATH is correctly set to the system ffmpeg
-process.env.FFMPEG_PATH = "/usr/bin/ffmpeg"; // Adjust this path if needed
-process.env.FFMPEG_BINARY = "/usr/bin/ffmpeg"; // Adjust this path if needed
+import "./config/prism.config.js";
 
 // Get guild limit from environment variable, default to 1 if not set
 const guildLimit = process.env.GUILD_LIMIT ? parseInt(process.env.GUILD_LIMIT, 10) : 1;
@@ -33,27 +22,37 @@ client.commands = new Collection();
 client.commands.set("phishin", { execute });
 
 client.once("ready", async () => {
-  try {
-    const info = await new prism.FFmpeg({
-      args: ['-version'],
-      shell: false,
-      executable: process.env.FFMPEG_PATH
-    });
-    console.log("FFmpeg Info:", info);
-  } catch (error) {
-    console.error("Error fetching FFmpeg info:", error);
+  console.log(generateDependencyReport());
+
+  console.log(`Bot is online as ${client.user.tag}`);
+  console.log(`Guild limit: ${guildLimit}`);
+  console.log(`Connected guilds: ${client.guilds.cache.size}`);
+
+  // List up to 20 connected guilds
+  const guilds = [...client.guilds.cache.values()];
+  const guildsToShow = Math.min(guilds.length, 20);
+  for (let i = 0; i < guildsToShow; i++) {
+    const guild = guilds[i];
+    console.log(` ${i + 1}. ${guild.name} (${guild.id})`);
+  }
+  if (guilds.length > 20) {
+    console.log(` ... and ${guilds.length - 20} more guilds`);
   }
 
-  console.log("FFmpeg Path:", execSync('which ffmpeg').toString().trim());
-  console.log("FFmpeg Version:", execSync('ffmpeg -version').toString().split("\n")[0]);
-  console.log("Node PATH:", process.env.PATH);
-  console.log("Node FFMPEG_PATH:", process.env.FFMPEG_PATH);
-  console.log("Node FFMPEG_BINARY:", process.env.FFMPEG_BINARY);
+  // Check if we're already in more guilds than the limit
+  if (client.guilds.cache.size > guildLimit) {
+    console.log(`Exceeding guild limit (${guildLimit}). Leaving excess guilds...`);
 
-  console.log(generateDependencyReport());
-  console.log(`Bot is online as ${client.user.tag}`);
-  console.log(`Guild limit set to: ${guildLimit}`);
+    // Leave the oldest guilds until we're under the limit
+    const sortedGuilds = [...client.guilds.cache.values()].sort((a, b) => a.joinedTimestamp - b.joinedTimestamp);
+    for (let i = 0; i < sortedGuilds.length - guildLimit; i++) {
+      const guild = sortedGuilds[i];
+      console.log(`Leaving excess guild: ${guild.name} (${guild.id})`);
+      await guild.leave();
+    }
+  }
 
+  // Update global slash commands
   const commands = [data.toJSON()];
   const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);
 
@@ -67,6 +66,19 @@ client.once("ready", async () => {
   } catch (error) {
     console.error(error);
   }
+});
+
+// Handle new guild joins
+client.on("guildCreate", async (guild) => {
+  const currentGuildCount = client.guilds.cache.size;
+
+  if (currentGuildCount > guildLimit) {
+    console.log(`Guild limit (${guildLimit}) reached. Leaving guild: ${guild.name} (${guild.id})`);
+    await guild.leave();
+    return;
+  }
+
+  console.log(`Joined new guild: ${guild.name} (${guild.id}). Current guild count: ${currentGuildCount}/${guildLimit}`);
 });
 
 // Bot command handler

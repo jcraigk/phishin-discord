@@ -51,9 +51,32 @@ The bot implements the `/phishin` slash command and understands the following su
 1. Run `make dev`
 
 
-### For Production Deployment
+### Running in Docker
 
-To keep the bot running continuously on a remote server, use PM2:
+You can also run the bot in a Docker container:
+
+1. Build the Docker image: `make build`
+2. Start the container: `make up`
+3. View logs: `make logs`
+4. Stop the container: `make down`
+
+
+### Deploying with Dokku
+
+This project is configured to run with [Dokku](https://dokku.com/). To deploy:
+
+1. Create a new app on your Dokku server: `dokku apps:create phishin-discord`
+2. Set the buildpack to Node.js: `dokku buildpacks:set phishin-discord https://github.com/heroku/heroku-buildpack-nodejs.git`
+3. Set your Discord token: `dokku config:set phishin-discord DISCORD_TOKEN=your_token_here`
+4. Set the guild limit (integer) if you want multiple guilds to join: `dokku config:set phishin-discord GUILD_LIMIT=your_number_here`
+5. Configure the app as a worker process: `dokku ps:set phishin-discord process-type=worker`
+6. Set the worker scale to 1: `dokku ps:scale phishin-discord worker=1`
+7. Deploy by pushing to your Dokku remote: `git push dokku main`
+
+
+### Deploying with PM2
+
+To keep the bot running continuously on a remote server, try PM2:
 
 1. Install PM2 globally: `npm install -g pm2`
 2. Start the bot with PM2: `pm2 start index.js --name "phishin-discord"`
