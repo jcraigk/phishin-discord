@@ -21,6 +21,7 @@ The bot implements the `/phishin` slash command and understands the following su
 - Year (e.g., 1997): Pick a random show from that year
 - Song name (e.g., Tweezer): Pick random versions of that song
 - Venue name (e.g., MSG): Pick a random show from that venue
+- Tag name (e.g., `Guest`): Pick random instances of that tag
 - URL (e.g., https://phish.in/...): Specific show, track, or playlist
 ```
 

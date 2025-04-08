@@ -110,10 +110,13 @@ async function handleSearchQuery(query) {
   if (searchResults.songs && searchResults.songs.length > 0) {
     const songSlug = searchResults.songs[0].slug;
     return fetchRandomTracksBySong(songSlug);
+  } else if (searchResults.tags && searchResults.tags.length > 0) {
+    const tagSlug = searchResults.tags[0].slug;
+    return fetchRandomTracksByTag(tagSlug);
   } else if (searchResults.venues && searchResults.venues.length > 0) {
     const venueSlug = searchResults.venues[0].slug;
     const show = await fetchRandomShowByVenue(venueSlug);
-    return show.tracks;
+    return show ? show.tracks : [];
   }
   return [];
 }
@@ -126,6 +129,20 @@ async function fetchRandomTracksBySong(songSlug, num = 20) {
     }
 
     const tracksData = await fetchFromAPI(`/tracks?song_slug=${songSlug}&per_page=1000`);
+    if (!tracksData || tracksData.notFound || !tracksData.tracks || tracksData.tracks.length === 0) {
+      return [];
+    }
+
+    const shuffledTracks = tracksData.tracks.sort(() => 0.5 - Math.random());
+    return shuffledTracks.slice(0, num);
+  } catch (error) {
+    return [];
+  }
+}
+
+async function fetchRandomTracksByTag(tagSlug, num = 20) {
+  try {
+    const tracksData = await fetchFromAPI(`/tracks?tag_slug=${tagSlug}&per_page=1000`);
     if (!tracksData || tracksData.notFound || !tracksData.tracks || tracksData.tracks.length === 0) {
       return [];
     }

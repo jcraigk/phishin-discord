@@ -15,6 +15,7 @@ export default async function handleHelp(interaction) {
       "- Year (e.g., `1997`): Pick a random show from that year\n" +
       "- Song name (e.g., `Tweezer`): Pick random versions of that song\n" +
       "- Venue name (e.g., `MSG`): Pick a random show from that venue\n" +
+      "- Tag name (e.g., `Guest`): Pick random instances of that tag\n" +
       "- URL (e.g., `https://phish.in/...`): Specific show, track, or playlist",
     flags: MessageFlags.Ephemeral
   });
