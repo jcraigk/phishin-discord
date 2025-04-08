@@ -16,6 +16,5 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
-COPY .env.docker .env
 
 CMD ["node", "./index.js"]

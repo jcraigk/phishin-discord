@@ -84,7 +84,7 @@ describe("pause command", () => {
 
     // Assert
     expect(mockInteraction.reply).toHaveBeenCalledWith({
-      content: "❌ An error occurred while trying to pause playback.",
+      content: "❌ An error occurred while trying to pause playback",
       flags: MessageFlags.Ephemeral
     });
   });

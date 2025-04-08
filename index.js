@@ -11,7 +11,6 @@ import prism from "prism-media";
 
 // Configure prism to use system ffmpeg
 const ffmpegPath = process.env.IN_DOCKER ? "/usr/bin/ffmpeg" : (process.env.FFMPEG_PATH || "/usr/bin/ffmpeg");
-console.log("Using FFmpeg path:", ffmpegPath);
 
 const getFFmpegInfo = () => {
   try {
@@ -54,7 +53,7 @@ client.commands = new Collection();
 client.commands.set("phishin", { execute });
 
 client.once("ready", async () => {
-  console.log(generateDependencyReport());
+  // console.log(generateDependencyReport());
 
   console.log(`Bot is online as ${client.user.tag}`);
   console.log(`Guild limit: ${guildLimit}`);
@@ -116,30 +115,9 @@ client.on("guildCreate", async (guild) => {
 // Bot command handler
 client.on("interactionCreate", async interaction => {
   if (!interaction.isCommand()) return;
-
   const command = client.commands.get(interaction.commandName);
   if (!command) return;
-
-  try {
-    await command.execute(interaction, client);
-  } catch (error) {
-    console.error(`Error executing command ${interaction.commandName}:`, error);
-
-    try {
-      if (!interaction.replied && !interaction.deferred) {
-        await interaction.reply({
-          content: "There was an error executing this command!",
-          flags: MessageFlags.Ephemeral
-        });
-      } else if (interaction.deferred && !interaction.replied) {
-        await interaction.editReply({
-          content: "There was an error executing this command!"
-        });
-      }
-    } catch (replyError) {
-      console.error("Error sending error message:", replyError);
-    }
-  }
+  await command.execute(interaction, client);
 });
 
 client.login(process.env.DISCORD_TOKEN);

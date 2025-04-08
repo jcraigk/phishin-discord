@@ -162,7 +162,7 @@ describe("show command", () => {
 
     // Assert
     expect(mockInteraction.deferReply).toHaveBeenCalledWith({ flags: MessageFlags.Ephemeral });
-    expect(mockInteraction.editReply).toHaveBeenCalledWith("❌ Show not found.");
+    expect(mockInteraction.editReply).toHaveBeenCalledWith("❌ Show not found");
   });
 
   it("handles network error", async () => {

@@ -4,66 +4,39 @@ import * as chrono from "chrono-node";
 const BASE_URL = "https://phish.in/api/v2";
 
 async function fetchFromAPI(endpoint) {
-  console.log(`[phishinAPI] BASE_URL: ${BASE_URL}`);
-  console.log(`[phishinAPI] endpoint: ${endpoint}`);
-
   // Ensure endpoint starts with a forward slash
   const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   // Remove any trailing slash from BASE_URL
   const normalizedBaseUrl = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL;
 
   const url = `${normalizedBaseUrl}${normalizedEndpoint}`;
-  console.log(`[phishinAPI] Constructed URL: ${url}`);
 
   try {
-    console.log(`[phishinAPI] Attempting to fetch from: ${url}`);
     const response = await fetch(url, {
       headers: {
         'Accept': 'application/json'
       }
     });
-    console.log(`[phishinAPI] Response status: ${response.status}`);
-    console.log(`[phishinAPI] Response headers:`, response.headers);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`[phishinAPI] Error response: ${errorText}`);
       throw new Error(`API request failed with status ${response.status}: ${errorText}`);
     }
 
     const data = await response.json();
-    console.log(`[phishinAPI] Response data (first 100 chars): ${JSON.stringify(data).substring(0, 100)}...`);
     return data;
   } catch (error) {
-    console.error(`[phishinAPI] Network error details:`, {
-      message: error.message,
-      stack: error.stack,
-      cause: error.cause,
-      url: url
-    });
     throw new Error(`Network error - could not fetch data: ${error.message}`);
   }
 }
 
 export async function fetchRandomShow() {
-  console.log('[phishinAPI] Fetching random show...');
   const data = await fetchFromAPI("/shows/random");
-  console.log('[phishinAPI] Random show data received:', {
-    id: data.id,
-    date: data.date,
-    tracks: data.tracks ? data.tracks.length : 0
-  });
   return data;
 }
 
 export async function fetchShow(date) {
-  console.log(`[phishinAPI] Fetching show for date: ${date}`);
   const data = await fetchFromAPI(`/shows/${date}`);
-  console.log('[phishinAPI] Show data received:', {
-    id: data.id,
-    date: data.date,
-    tracks: data.tracks ? data.tracks.length : 0
-  });
   return data;
 }
 
@@ -149,20 +122,17 @@ async function fetchRandomTracksBySong(songSlug, num = 20) {
   try {
     const songData = await fetchFromAPI(`/songs/${songSlug}`);
     if (!songData || songData.notFound) {
-      console.error(`Song not found for slug: ${songSlug}`);
       return [];
     }
 
     const tracksData = await fetchFromAPI(`/tracks?song_slug=${songSlug}&per_page=1000`);
     if (!tracksData || tracksData.notFound || !tracksData.tracks || tracksData.tracks.length === 0) {
-      console.error(`No tracks found for song slug: ${songSlug}`);
       return [];
     }
 
     const shuffledTracks = tracksData.tracks.sort(() => 0.5 - Math.random());
     return shuffledTracks.slice(0, num);
   } catch (error) {
-    console.error("Error fetching tracks by song slug:", error);
     return [];
   }
 }
@@ -171,13 +141,11 @@ async function fetchRandomShowByVenue(venueSlug) {
   try {
     const venueData = await fetchFromAPI(`/venues/${venueSlug}`);
     if (!venueData || venueData.notFound) {
-      console.error(`Venue not found for slug: ${venueSlug}`);
       return null;
     }
 
     const showsData = await fetchFromAPI(`/shows?venue_slug=${venueSlug}&per_page=1000`);
     if (!showsData || showsData.notFound || !showsData.shows || showsData.shows.length === 0) {
-      console.error(`No shows found for venue slug: ${venueSlug}`);
       return null;
     }
 
@@ -186,7 +154,6 @@ async function fetchRandomShowByVenue(venueSlug) {
 
     return fetchShow(randomShow.date);
   } catch (error) {
-    console.error("Error fetching random show by venue:", error);
     return null;
   }
 }

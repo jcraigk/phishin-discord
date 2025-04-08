@@ -1,7 +1,6 @@
 import { EmbedBuilder, MessageFlags } from "discord.js";
 import { AudioPlayerStatus, createAudioResource } from "@discordjs/voice";
 import { fetchRandomShow, fetchTracksByQuery } from "../services/phishinAPI.js";
-import { formatDate } from "../utils/timeUtils.js";
 import { getOrCreatePlaylist } from "../utils/playlistUtils.js";
 import { createNowPlayingEmbed } from "../utils/embedUtils.js";
 
@@ -12,9 +11,7 @@ export default async function handlePlay(interaction, client) {
     const voiceChannel = interaction.member.voice.channel;
 
     if (!voiceChannel) {
-      await interaction.editReply({
-        content: "🔊 You need to be in a voice channel to play audio"
-      });
+      await interaction.editReply("🔊 You need to be in a voice channel to play audio");
       return;
     }
 
@@ -26,8 +23,8 @@ export default async function handlePlay(interaction, client) {
       await handleQuery(interaction, client, query);
     }
   } catch (error) {
-    // console.error("Error in handlePlay:", error);
-    await interaction.editReply("❌ An error occurred while trying to play audio");
+    console.error("Error in handlePlay:", error);
+    await sendErrorResponse(interaction, "❌ An error occurred while trying to play audio");
   }
 }
 
@@ -69,7 +66,7 @@ async function handleResumePlayback(interaction, client) {
     await interaction.editReply({ embeds: [embed] });
   } catch (error) {
     // console.error("Error resuming playback:", error);
-    await interaction.editReply("❌ An error occurred while trying to resume playback.");
+    await interaction.editReply("❌ An error occurred while trying to resume playback");
   }
 }
 

@@ -30,7 +30,7 @@ export default async function handleShow(interaction) {
       const showResponse = await fetchShow(parsedDate);
 
       if (showResponse.notFound) {
-        await interaction.editReply("❌ Show not found.");
+        await interaction.editReply("❌ Show not found");
         return;
       }
 
