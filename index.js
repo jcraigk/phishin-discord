@@ -6,6 +6,18 @@ import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v10";
 import { data, execute } from "./commands/index.js";
 import { generateDependencyReport } from "@discordjs/voice";
+import { execSync } from 'node:child_process';
+import prism from "prism-media";
+
+prism.FFmpeg.getInfo = () => ({
+  command: "/usr/bin/ffmpeg",
+  output: execSync("/usr/bin/ffmpeg -version").toString(),
+  version: "patched"
+});
+
+// Ensure FFMPEG_PATH is correctly set to the system ffmpeg
+process.env.FFMPEG_PATH = "/usr/bin/ffmpeg"; // Adjust this path if needed
+process.env.FFMPEG_BINARY = "/usr/bin/ffmpeg"; // Adjust this path if needed
 
 // Get guild limit from environment variable, default to 1 if not set
 const guildLimit = process.env.GUILD_LIMIT ? parseInt(process.env.GUILD_LIMIT, 10) : 1;
@@ -21,6 +33,23 @@ client.commands = new Collection();
 client.commands.set("phishin", { execute });
 
 client.once("ready", async () => {
+  try {
+    const info = await new prism.FFmpeg({
+      args: ['-version'],
+      shell: false,
+      executable: process.env.FFMPEG_PATH
+    });
+    console.log("FFmpeg Info:", info);
+  } catch (error) {
+    console.error("Error fetching FFmpeg info:", error);
+  }
+
+  console.log("FFmpeg Path:", execSync('which ffmpeg').toString().trim());
+  console.log("FFmpeg Version:", execSync('ffmpeg -version').toString().split("\n")[0]);
+  console.log("Node PATH:", process.env.PATH);
+  console.log("Node FFMPEG_PATH:", process.env.FFMPEG_PATH);
+  console.log("Node FFMPEG_BINARY:", process.env.FFMPEG_BINARY);
+
   console.log(generateDependencyReport());
   console.log(`Bot is online as ${client.user.tag}`);
   console.log(`Guild limit set to: ${guildLimit}`);
@@ -52,7 +81,6 @@ client.on("interactionCreate", async interaction => {
   } catch (error) {
     console.error(`Error executing command ${interaction.commandName}:`, error);
 
-    // Try to respond to the interaction if it hasn't been responded to yet
     try {
       if (!interaction.replied && !interaction.deferred) {
         await interaction.reply({
