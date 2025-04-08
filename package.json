@@ -15,7 +15,6 @@
   "dependencies": {
     "@discordjs/opus": "^0.10.0",
     "@discordjs/voice": "^0.18.0",
-    "better-sqlite3": "^11.9.1",
     "chrono-node": "^2.8.0",
     "discord-api-types": "^0.37.119",
     "discord.js": "^14.18.0",

@@ -5,7 +5,7 @@ import { Client, GatewayIntentBits, Collection, MessageFlags } from "discord.js"
 import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v10";
 import { data, execute } from "./commands/index.js";
-import db from "./db/index.js";
+import { generateDependencyReport } from "@discordjs/voice";
 
 // Get guild limit from environment variable, default to 1 if not set
 const guildLimit = process.env.GUILD_LIMIT ? parseInt(process.env.GUILD_LIMIT, 10) : 1;
@@ -21,6 +21,7 @@ client.commands = new Collection();
 client.commands.set("phishin", { execute });
 
 client.once("ready", async () => {
+  console.log(generateDependencyReport());
   console.log(`Bot is online as ${client.user.tag}`);
   console.log(`Guild limit set to: ${guildLimit}`);
 
@@ -36,34 +37,6 @@ client.once("ready", async () => {
     console.log("Done updating global slash commands");
   } catch (error) {
     console.error(error);
-  }
-});
-
-// Track when bot is added to a guild
-client.on("guildCreate", async (guild) => {
-  try {
-    // Check if we've reached the guild limit
-    const currentGuildCount = client.guilds.cache.size;
-    if (currentGuildCount > guildLimit) {
-      console.log(`Guild limit reached (${currentGuildCount}/${guildLimit}). Leaving guild: ${guild.name} (${guild.id})`);
-      await guild.leave();
-      return;
-    }
-
-    console.log(`Bot added to guild: ${guild.name} (${guild.id})`);
-    await db.addGuild(guild.id, guild.name, guild.memberCount);
-  } catch (error) {
-    console.error('Error handling guild creation:', error);
-  }
-});
-
-// Track when bot is removed from a guild
-client.on("guildDelete", async (guild) => {
-  try {
-    console.log(`Bot removed from guild: ${guild.name} (${guild.id})`);
-    await db.removeGuild(guild.id);
-  } catch (error) {
-    console.error('Error handling guild deletion:', error);
   }
 });
 

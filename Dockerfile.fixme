@@ -18,8 +18,5 @@ RUN npm ci
 # Copy app source
 COPY . .
 
-# Rebuild better-sqlite3 from source
-RUN npm rebuild better-sqlite3
-
 # Start the bot
 CMD ["npm", "run", "dev"]
