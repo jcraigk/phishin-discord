@@ -17,9 +17,17 @@ export default async function handlePlay(interaction, client) {
 
     const playlist = getOrCreatePlaylist(client, interaction.guild.id, voiceChannel);
 
-    if (playlist.isPaused) {
+    // Check if the bot is already actively playing
+    if (playlist.isActive && !playlist.isPaused) {
+      const track = playlist.tracks[playlist.currentIndex];
+      const embed = createNowPlayingEmbed(track, playlist, "Now Playing");
+      await interaction.editReply({
+        content: "Already playing. Use `/phishin stop` to reset playlist.",
+        embeds: [embed],
+      });
+    } else if (playlist.isPaused) { // If paused, resume
       await handleResumePlayback(interaction, client);
-    } else {
+    } else { // Otherwise, handle the new query
       await handleQuery(interaction, client, query);
     }
   } catch (error) {
