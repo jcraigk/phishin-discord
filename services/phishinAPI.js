@@ -79,6 +79,13 @@ async function handlePhishInUrl(url) {
     const showData = await fetchShow(pathSegments[0]);
     const track = showData?.tracks.find(t => t.slug === pathSegments[1]);
     return track ? [track] : [];
+  } else if (pathSegments[0] === 'venues' && pathSegments.length === 2) {
+    const venueSlug = pathSegments[1];
+    const show = await fetchRandomShowByVenue(venueSlug);
+    return show?.tracks || [];
+  } else if (pathSegments[0] === 'songs' && pathSegments.length === 2) {
+    const songSlug = pathSegments[1];
+    return fetchRandomTracksBySong(songSlug);
   } else if (pathSegments[0] === "play" && pathSegments.length === 2) {
     return fetchPlaylistTracks(pathSegments[1]);
   }
